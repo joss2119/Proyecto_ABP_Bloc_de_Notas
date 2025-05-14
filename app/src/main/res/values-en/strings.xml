@@ -1,0 +1,6 @@
+<resources>
+    <string name="app_name">ABP_Project_Notepad</string>
+    <string name="nombre_aplicacion">NOTEDespistes</string>
+    <string name="settings_name">Settings</string>
+    <string name="titulo_cajon">Main menu</string>
+</resources>

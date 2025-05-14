@@ -1,3 +1,6 @@
 <resources>
     <string name="app_name">Proyecto_ABP_Bloc_de_Notas</string>
+    <string name="nombre_aplicacion">NOTEDespistes</string>
+    <string name="settings_name">Ajustes</string>
+    <string name="titulo_cajon">Menu principal</string>
 </resources>
