@@ -537,7 +537,7 @@ fun PantallaAjustes(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Ajustes (Preview)") },
+                title = { Text("Ajustes") },
                 navigationIcon = {
                     IconButton(onClick = onNavigateBack) {
                         Icon(Icons.Filled.ArrowBack, "Volver")
@@ -554,7 +554,7 @@ fun PantallaAjustes(
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center
         ) {
-            Text("Pantalla de Ajustes (Simulada)")
+            Text("Pantalla de Ajustes")
             Spacer(modifier = Modifier.height(16.dp))
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Text("Tema Oscuro")
@@ -571,7 +571,7 @@ fun PantallaAcercaDe(onNavigateBack: () -> Unit) {
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Acerca de (Preview)") },
+                title = { Text("Acerca de") },
                 navigationIcon = {
                     IconButton(onClick = onNavigateBack) {
                         Icon(Icons.Filled.ArrowBack, "Volver")
@@ -588,8 +588,10 @@ fun PantallaAcercaDe(onNavigateBack: () -> Unit) {
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center
         ) {
-            Text("Pantalla Acerca De (Simulada)")
+            Text("Pantalla Acerca De")
             Text("Versión: 1.0.0")
+            Text("Año: 2025")
+            Text("Autores: Juan Mañanes, David San Martin, Jose David Cabeza")
         }
     }
 }
