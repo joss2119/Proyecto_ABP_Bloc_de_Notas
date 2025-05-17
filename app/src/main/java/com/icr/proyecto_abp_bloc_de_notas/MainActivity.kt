@@ -1,17 +1,10 @@
 package com.icr.proyecto_abp_bloc_de_notas
 
-import PantallaPrincipalNotas
-import android.graphics.Color
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.systemBarsPadding
-import androidx.compose.material3.*
-import androidx.compose.ui.Modifier
 import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsControllerCompat
-import com.icr.proyecto_abp_bloc_de_notas.ui.theme.Proyecto_ABP_Bloc_de_NotasTheme
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -27,16 +20,16 @@ class MainActivity : ComponentActivity() {
         insetsController.isAppearanceLightNavigationBars = true
 
         setContent {
-            Proyecto_ABP_Bloc_de_NotasTheme {
-                Surface(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .systemBarsPadding(),  // padding top + bottom automático
-                    color = MaterialTheme.colorScheme.background
-                ) {
-                    PantallaPrincipalNotas()
+            // Initialize PantallaPrincipalNotasApp
+            // It handles its own theme state internally based on initialDarkTheme
+            // and calls onThemeChange when the theme is modified in settings.
+            PantallaPrincipalNotasApp(
+                // initialDarkTheme = determineInitialDarkTheme(savedThemePreference), // Example
+                onThemeChange = { isDark ->
+                    // Save the new theme preference if needed
+                    // saveThemePreference(isDark)
                 }
-            }
+            )
         }
     }
 }

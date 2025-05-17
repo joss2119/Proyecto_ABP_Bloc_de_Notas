@@ -3,4 +3,241 @@
     <string name="nombre_aplicacion">NOTEDespistes</string>
     <string name="settings_name">Ajustes</string>
     <string name="titulo_cajon">Menu principal</string>
+    <string name="notas_activas">Active Notes</string>
+    <string name="papelera">Recycle Bin</string>
+    <string name="acerca_de">About</string>
+    <string name="menu_descripcion">Menu</string>
+    <string name="nota_nueva_titulo_prefijo">New Note</string>
+    <string name="anadir_nueva_nota">Add new note</string>
+    <string name="mensaje_no_hay_notas">You don\'t have any notes yet. Add one!</string>
+    <string name="mensaje_papelera_vacia">The recycle bin is empty.</string>
+    <string name="nota_en_papelera_prefijo">Note in bin</string>
+    <string name="en_papelera_label">(In recycle bin)</string>
+    <string name="editar_nota_titulo">Edit Note</string>
+    <string name="titulo_label">Title</string>
+    <string name="contenido_label">Content</string>
+    <string name="guardar_boton">Save</string>
+    <string name="cancelar_boton">Cancel</string>
+    <string name="enviar_a_papelera_titulo">Send to Recycle Bin</string>
+    <string name="confirmar_enviar_a_papelera_mensaje">Are you sure you want to send the note \"%s\"
+        to the recycle bin?
+    </string>
+    <string name="nota_enviada_a_papelera_toast">Note sent to recycle bin</string>
+    <string name="enviar_boton">Send</string>
+    <string name="ajustes_titulo_pantalla">Settings</string>
+    <string name="volver_descripcion">Back</string>
+    <string name="tema_label">Theme</string>
+    <string name="tema_oscuro">Dark Theme</string>
+    <string name="tema_claro">Light Theme</string>
+    <string name="cambiar_tema_descripcion">Change theme</string>
+    <string name="idioma_label">Language</string>
+    <string name="cambiar_idioma_descripcion">Change language</string>
+    <string name="seleccionar_idioma_titulo">Select Language</string>
+    <string name="idioma_cambiado_a">Language changed to</string>
+    <string name="reinicia_para_aplicar">Restart the app for changes to take full effect.</string>
+    <string name="opciones_para_nota_en_papelera">Options for note in bin</string>
+    <string name="vaciar_papelera_descripcion">Empty Recycle Bin</string>
+
+    <!-- Note Creation/Editing Dialog -->
+    <string name="crear_nota_titulo">Create Note</string>
+    <string name="nota_sin_titulo">(Untitled Note)</string>
+
+    <!-- Empty Recycle Bin Dialog -->
+    <string name="vaciar_papelera_confirmacion_titulo">Empty Recycle Bin?</string>
+    <string name="vaciar_papelera_confirmacion_mensaje">Are you sure you want to permanently delete
+        all notes in the recycle bin? This action cannot be undone.
+    </string>
+    <string name="papelera_vaciada_toast">Recycle bin emptied</string>
+    <string name="vaciar_boton">Empty</string>
+    <string name="tema_oscuro_label">Dark Mode</string>
+    <string name="tema_claro_label">Light Mode</string>
+    <string name="tema_sistema_label">System Default</string>
+    <string name="idioma_actual_label">Current Language: %1$s</string> <!-- %1$s will be replaced by current language name -->
+    <string name="cambiar_idioma_button">Change Language</string>
+    <string name="reiniciar_para_idioma_toast">App will restart to apply language changes.</string>
+    <string name="seleccionar_idioma_dialog_titulo">Select Language</string>
+
+    <!-- About Screen -->
+    <string name="acerca_de_titulo_pantalla">About App</string>
+    <string name="app_logo_description">Application Logo</string>
+    <string name="about_version_name_label">Version Name</string>
+    <string name="about_version_code_label">Version Code</string>
+    <string name="about_project_name_label">Project</string>
+    <string name="about_creation_date_label">Creation Date</string>
+    <string name="about_developer_label">Developer</string>
+    <string name="about_contact_email_label">Contact</string>
+    <!-- Example values for About screen, you can change these directly or reference them -->
+    <string name="about_project_name_value">Notes App - ABP Project</string>
+    <string name="about_creation_date_value">January 2024</string>
+    <string name="about_developer_value">Your Name / Team Name</string>
+    <string name="about_contact_email_value">your.email@example.com</string>
+    <string name="about_copyright">© %1$s Your Company/Name. All rights reserved.</string>
+
+    <!-- <string name="app_name">Notes App ABP</string> -->
+
+    <!-- <string name="nombre_aplicacion">Notes App</string> -->
+
+    <!-- <string name="settings_name">Settings</string> -->
+
+    <!-- <string name="titulo_cajon">Main Menu</string> -->
+
+    <!-- App Name and Basic Navigation -->
+    <!-- <string name="app_name">Notes App</string> -->
+ <!-- Used in AndroidManifest and potentially as a fallback -->
+    <!-- <string name="nombre_aplicacion">My Notes</string> -->
+ <!-- Displayed in TopAppBar for active notes -->
+    <!-- <string name="titulo_cajon">Menu</string> -->
+
+    <!-- <string name="menu_descripcion">Open navigation menu</string> -->
+
+    <!-- <string name="settings_name">Settings</string> -->
+ <!-- Also used as TopAppBar action -->
+
+    <!-- Main Screen - Notes List & Bin -->
+    <!-- <string name="mensaje_no_hay_notas">No notes yet. Tap \'+\' to add one!</string> -->
+
+    <!-- <string name="mensaje_papelera_vacia">Recycle Bin is empty.</string> -->
+
+    <!-- <string name="en_papelera_label">(In Recycle Bin)</string> -->
+
+    <!-- <string name="nota_nueva_titulo_prefijo">Note</string> -->
+
+
+    <!-- Send to Recycle Bin Dialog -->
+    <!-- <string name="enviar_a_papelera_titulo">Send to Recycle Bin?</string> -->
+
+    <!-- <string name="confirmar_enviar_a_papelera_mensaje">Are you sure you want to send \"%1$s\" to the
+        recycle bin?
+    </string> -->
+
+    <!-- Nombre de la App y Navegación Básica -->
+    <!-- <string name="app_name">App de Notas</string> -->
+ <!-- Usado en AndroidManifest y potencialmente como fallback -->
+    <!-- <string name="nombre_aplicacion">Mis Notas</string> -->
+ <!-- Mostrado en TopAppBar para notas activas -->
+    <!-- <string name="titulo_cajon">Menú</string> -->
+
+    <!-- <string name="menu_descripcion">Abrir menú de navegación</string> -->
+
+    <!-- <string name="volver_descripcion">Volver</string> -->
+
+
+    <!-- Elementos del Cajón de Navegación -->
+    <!-- <string name="notas_activas">Notas Activas</string> -->
+
+    <!-- <string name="papelera">Papelera</string> -->
+
+    <!-- <string name="acerca_de">Acerca de</string> -->
+ <!-- También usado como acción en TopAppBar -->
+
+    <!-- Pantalla Principal - Lista de Notas y Papelera -->
+    <!-- <string name="mensaje_no_hay_notas">Aún no hay notas. ¡Pulsa \'+\' para añadir una!</string> -->
+
+    <!-- <string name="mensaje_papelera_vacia">La papelera está vacía.</string> -->
+
+    <!-- <string name="en_papelera_label">(En la Papelera)</string> -->
+
+    <!-- <string name="opciones_para_nota_en_papelera">Opciones para nota en papelera</string> -->
+ <!-- Placeholder para Toast -->
+
+    <!-- Botones Flotantes de Acción -->
+    <!-- <string name="anadir_nueva_nota">Añadir nueva nota</string> -->
+
+    <!-- <string name="vaciar_papelera_descripcion">Vaciar Papelera</string> -->
+
+
+    <!-- Diálogo de Creación/Edición de Nota -->
+    <!-- <string name="crear_nota_titulo">Crear Nota</string> -->
+
+    <!-- <string name="editar_nota_titulo">Editar Nota</string> -->
+
+    <!-- <string name="nota_nueva_titulo_prefijo">Nota</string> -->
+ <!-- Prefijo por defecto para notas nuevas, ej., "Nota 1" -->
+    <!-- <string name="titulo_label">Título</string> -->
+
+    <!-- <string name="contenido_label">Contenido</string> -->
+
+    <!-- <string name="nota_sin_titulo">(Nota sin título)</string> -->
+
+    <!-- <string name="guardar_boton">Guardar</string> -->
+
+    <!-- <string name="cancelar_boton">Cancelar</string> -->
+
+
+    <!-- Diálogo de Enviar a Papelera -->
+    <!-- <string name="enviar_a_papelera_titulo">¿Enviar a la Papelera?</string> -->
+
+    <!-- <string name="confirmar_enviar_a_papelera_mensaje">¿Estás seguro de que quieres enviar \"%1$s\"
+        a la papelera?
+    </string> -->
+
+    <!-- <string name="nota_enviada_a_papelera_toast">Nota enviada a la papelera</string> -->
+
+    <!-- <string name="enviar_boton">Enviar</string> -->
+
+
+    <!-- Diálogo de Vaciar Papelera -->
+    <!-- <string name="vaciar_papelera_confirmacion_titulo">¿Vaciar Papelera?</string> -->
+
+    <!-- <string name="vaciar_papelera_confirmacion_mensaje">¿Estás seguro de que quieres eliminar
+        permanentemente todas las notas de la papelera? Esta acción no se puede deshacer.
+    </string> -->
+
+    <!-- <string name="papelera_vaciada_toast">Papelera vaciada</string> -->
+
+    <!-- <string name="vaciar_boton">Vaciar</string> -->
+
+
+    <!-- Pantalla de Ajustes -->
+    <!-- <string name="ajustes_titulo_pantalla">Ajustes</string> -->
+
+    <!-- <string name="tema_label">Tema</string> -->
+
+    <!-- <string name="tema_oscuro_label">Modo Oscuro</string> -->
+
+    <!-- <string name="tema_claro_label">Modo Claro</string> -->
+
+    <!-- <string name="tema_sistema_label">Predeterminado del Sistema</string> -->
+
+    <!-- <string name="idioma_label">Idioma</string> -->
+
+    <!-- <string name="idioma_actual_label">Idioma actual: %1$s</string> -->
+ <!-- %1$s será reemplazado por el nombre del idioma actual -->
+    <!-- <string name="cambiar_idioma_button">Cambiar Idioma</string> -->
+
+    <!-- <string name="reiniciar_para_idioma_toast">La aplicación se reiniciará para aplicar los cambios
+        de idioma.
+    </string> -->
+
+    <!-- <string name="seleccionar_idioma_dialog_titulo">Seleccionar Idioma</string> -->
+
+
+    <!-- Pantalla Acerca De -->
+    <!-- <string name="acerca_de_titulo_pantalla">Acerca de la App</string> -->
+
+    <!-- <string name="app_logo_description">Logo de la Aplicación</string> -->
+
+    <!-- <string name="about_version_name_label">Nombre de Versión</string> -->
+
+    <!-- <string name="about_version_code_label">Código de Versión</string> -->
+
+    <!-- <string name="about_project_name_label">Proyecto</string> -->
+
+    <!-- <string name="about_creation_date_label">Fecha de Creación</string> -->
+
+    <!-- <string name="about_developer_label">Desarrollador</string> -->
+
+    <!-- <string name="about_contact_email_label">Contacto</string> -->
+
+    <!-- Valores de ejemplo para la pantalla Acerca De, puedes cambiarlos directamente o referenciarlos -->
+    <!-- <string name="about_project_name_value">App de Notas - Proyecto ABP</string> -->
+
+    <!-- <string name="about_creation_date_value">Enero 2024</string> -->
+
+    <!-- <string name="about_developer_value">Tu Nombre / Nombre del Equipo</string> -->
+
+    <!-- <string name="about_contact_email_value">tu.correo@ejemplo.com</string> -->
+
+    <!-- <string name="about_copyright">© %1$s Tu Compañía/Nombre. Todos los derechos reservados.
+    </string> -->
 </resources>

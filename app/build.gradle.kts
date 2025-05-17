@@ -51,6 +51,8 @@ dependencies {
     implementation(libs.androidx.material3)
     // Nuestros imports
     implementation(libs.androidx.constraintlayout)
+    implementation(libs.androidx.material.icons.extended.android)
+    implementation(libs.androidx.material.icons.extended.android.v170)
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
