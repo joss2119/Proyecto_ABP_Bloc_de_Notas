@@ -1,94 +1,90 @@
-
 package com.icr.proyecto_abp_bloc_de_notas
 
 import android.widget.Toast
 import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.BasicTextField
+import androidx.compose.foundation.text.KeyboardActions
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.DeleteSweep
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.Notes
 import androidx.compose.material.icons.filled.*
+import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.filled.Notes
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.setValue
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.icr.proyecto_abp_bloc_de_notas.ui.theme.Proyecto_ABP_Bloc_de_NotasTheme
+import com.icr.proyecto_abp_bloc_de_notas.ui.theme.*
 import kotlinx.coroutines.launch
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.TopAppBar
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.Icon
-import androidx.compose.material3.Text
-import androidx.compose.material3.Switch
-import androidx.compose.material.icons.filled.ArrowBack
 
-// Definición del Data Class para Nota
 data class Nota(
     var id: Int,
     var titulo: String,
     var contenido: String,
-    var estaEnPapelera: Boolean = false
+    var estaEnPapelera: Boolean = false, // Indica si la nota ha sido enviada a la papelera
+    var esImportante: Boolean = false    // Indica si la nota es importante
 )
 
 // Enum para gestionar la vista actual (Notas Activas o Papelera)
-enum class VistaActual {
-    NOTAS_ACTIVAS,
+enum class VistaActualNotas {
+    ACTIVAS,
     PAPELERA
 }
 
-// Enum para la navegación entre pantallas principales
-enum class AppScreen {
-    NOTES_LIST,
-    SETTINGS,
-    ABOUT
+// Enum para la navegación entre pantallas principales de la aplicación
+enum class PantallaAplicacion {
+    LISTA_NOTAS,
+    AJUSTES,
+    ACERCA_DE
+}
+
+// Enum para definir el tipo de filtro de búsqueda
+enum class TipoFiltroBusqueda {
+    TITULO,
+    CONTENIDO
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun PantallaPrincipalNotasApp(
-    initialDarkTheme: Boolean = false, // Se recibe desde MainActivity
-    onThemeChange: (Boolean) -> Unit  // Se recibe desde MainActivity
+    temaInicialOscuro: Boolean = false,
+    alCambiarTema: (Boolean) -> Unit
 ) {
-    var currentScreen by remember { mutableStateOf(AppScreen.NOTES_LIST) }
-    // El estado del tema se maneja aquí para que persista entre pantallas
-    var isDarkTheme by remember { mutableStateOf(initialDarkTheme) }
+    var pantallaActualNav by rememberSaveable { mutableStateOf(PantallaAplicacion.LISTA_NOTAS) }
+    var esTemaOscuroActual by remember { mutableStateOf(temaInicialOscuro) }
 
-    Proyecto_ABP_Bloc_de_NotasTheme(darkTheme = isDarkTheme) {
-        when (currentScreen) {
-            AppScreen.NOTES_LIST -> {
-                PantallaPrincipalNotas(
-                    onNavigateToSettings = { currentScreen = AppScreen.SETTINGS },
-                    onNavigateToAbout = { currentScreen = AppScreen.ABOUT }
-                    // Pasamos isDarkTheme para que PantallaPrincipalNotas pueda usarlo si es necesario,
-                    // aunque el tema ya se aplica en Proyecto_ABP_Bloc_de_NotasTheme
-                )
+    Proyecto_ABP_Bloc_de_NotasTheme(darkTheme = esTemaOscuroActual) {
+        PantallaPrincipalNotas(
+            pantallaActual = pantallaActualNav,
+            alNavegarAAjustes = { pantallaActualNav = PantallaAplicacion.AJUSTES },
+            alNavegarAAcercaDe = { pantallaActualNav = PantallaAplicacion.ACERCA_DE },
+            alNavegarAListaNotas = { pantallaActualNav = PantallaAplicacion.LISTA_NOTAS },
+            esTemaOscuro = esTemaOscuroActual,
+            alCambiarTemaApp = { nuevoEstadoTemaOscuro ->
+                esTemaOscuroActual = nuevoEstadoTemaOscuro
+                alCambiarTema(nuevoEstadoTemaOscuro)
             }
-            AppScreen.SETTINGS -> {
-                PantallaAjustes( // Asume que tienes este Composable definido
-                    isDarkTheme = isDarkTheme,
-                    onThemeChanged = { newDarkThemeState ->
-                        isDarkTheme = newDarkThemeState
-                        onThemeChange(newDarkThemeState) // Notifica a MainActivity para guardar
-                    },
-                    onNavigateBack = { currentScreen = AppScreen.NOTES_LIST }
-                )
-            }
-            AppScreen.ABOUT -> {
-                PantallaAcercaDe( // Asume que tienes este Composable definido
-                    onNavigateBack = { currentScreen = AppScreen.NOTES_LIST }
-                )
-            }
-        }
+        )
     }
 }
 
@@ -96,35 +92,63 @@ fun PantallaPrincipalNotasApp(
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
 @Composable
 fun PantallaPrincipalNotas(
-    onNavigateToSettings: () -> Unit,
-    onNavigateToAbout: () -> Unit
+    pantallaActual: PantallaAplicacion,
+    alNavegarAAjustes: () -> Unit,
+    alNavegarAAcercaDe: () -> Unit,
+    alNavegarAListaNotas: () -> Unit,
+    esTemaOscuro: Boolean,
+    alCambiarTemaApp: (Boolean) -> Unit
 ) {
     val estadoCajonNavegacion = rememberDrawerState(initialValue = DrawerValue.Closed)
-    val scope = rememberCoroutineScope()
-    val context = LocalContext.current
+    val alcanceCoroutine = rememberCoroutineScope()
+    val contexto = LocalContext.current
 
-    // Esta lista debe ser la fuente de verdad para todas las notas
-    // Para persistencia real, esto vendría de un ViewModel y un Repositorio/Base de Datos
     val listaDeNotasGlobal = remember { mutableStateListOf<Nota>() }
-    var contadorDeNotas by remember { mutableStateOf(0) } // Simple ID generator
+    var contadorIdNotas by rememberSaveable { mutableStateOf(0) }
 
-    // Estados para el diálogo de edición de notas
-    var mostrarDialogoEdicion by remember { mutableStateOf(false) }
-    var notaParaEditar by remember { mutableStateOf<Nota?>(null) }
-    var tituloEditado by remember { mutableStateOf("") }
-    var contenidoEditado by remember { mutableStateOf("") }
+    var mostrarDialogoEdicionNota by remember { mutableStateOf(false) }
+    var notaParaEditarActual by remember { mutableStateOf<Nota?>(null) }
+    var tituloEditadoTemporal by remember { mutableStateOf("") }
+    var contenidoEditadoTemporal by remember { mutableStateOf("") }
+    var esImportanteTemporalDialogo by remember { mutableStateOf(false) } // NUEVO estado para el Checkbox del diálogo
 
-    // Estado para el Navigation Drawer
-    var selectedItemIndexNavDrawer by remember { mutableStateOf(0) }
+    var indiceElementoSelCajon by rememberSaveable { mutableStateOf(0) }
 
-    // Estados para diálogos de acciones sobre notas
-    var notaParaAccionLarga by remember { mutableStateOf<Nota?>(null) }
-    var mostrarDialogoEnviarAPapeleraConfirmacion by remember { mutableStateOf(false) }
-    var mostrarDialogoVaciarPapeleraConfirmacion by remember { mutableStateOf(false) }
-    // Podrías añadir más para restaurar/eliminar individualmente desde la papelera
+    var notaParaAccionLargaDialogo by remember { mutableStateOf<Nota?>(null) }
+    var mostrarDialogoEnviarPapeleraConf by remember { mutableStateOf(false) }
+    var mostrarDialogoVaciarPapeleraConf by remember { mutableStateOf(false) }
 
-    // Estado para controlar qué vista mostrar (Notas Activas o Papelera)
-    var vistaActual by remember { mutableStateOf(VistaActual.NOTAS_ACTIVAS) }
+    var vistaActualDeNotas by rememberSaveable { mutableStateOf(VistaActualNotas.ACTIVAS) }
+
+    var consultaDeBusqueda by rememberSaveable { mutableStateOf("") }
+    var busquedaEstaActiva by rememberSaveable { mutableStateOf(false) }
+    var tipoDeFiltroBusqueda by rememberSaveable { mutableStateOf(TipoFiltroBusqueda.TITULO) }
+    val administradorDeFoco = LocalFocusManager.current
+    var esBusquedaFocused by remember { mutableStateOf(false) }
+    var esTituloDialogoFocused by remember { mutableStateOf(false) }
+    var esContenidoDialogoFocused by remember { mutableStateOf(false) }
+
+    when (pantallaActual) {
+        PantallaAplicacion.AJUSTES -> {
+            PantallaAjustes(
+                esTemaOscuro = esTemaOscuro,
+                alCambiarTema = alCambiarTemaApp,
+                alNavegarAtras = alNavegarAListaNotas
+            )
+            return
+        }
+
+        PantallaAplicacion.ACERCA_DE -> {
+            PantallaAcercaDe(
+                alNavegarAtras = alNavegarAListaNotas
+            )
+            return
+        }
+
+        PantallaAplicacion.LISTA_NOTAS -> {
+            // Continúa
+        }
+    }
 
     ModalNavigationDrawer(
         drawerState = estadoCajonNavegacion,
@@ -139,52 +163,72 @@ fun PantallaPrincipalNotas(
                 HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))
 
                 NavigationDrawerItem(
-                    icon = { Icon(Icons.Filled.Home, contentDescription = stringResource(R.string.notas_activas)) },
+                    icon = {
+                        Icon(
+                            Icons.Filled.Home,
+                            contentDescription = stringResource(R.string.notas_activas)
+                        )
+                    },
                     label = { Text(stringResource(R.string.notas_activas)) },
-                    selected = selectedItemIndexNavDrawer == 0,
+                    selected = indiceElementoSelCajon == 0,
                     onClick = {
-                        vistaActual = VistaActual.NOTAS_ACTIVAS
-                        selectedItemIndexNavDrawer = 0
-                        scope.launch { estadoCajonNavegacion.close() }
+                        vistaActualDeNotas = VistaActualNotas.ACTIVAS
+                        indiceElementoSelCajon = 0
+                        alcanceCoroutine.launch { estadoCajonNavegacion.close() }
                     },
                     modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding)
                 )
 
                 NavigationDrawerItem(
-                    icon = { Icon(Icons.Filled.Delete, contentDescription = stringResource(R.string.papelera)) },
+                    icon = {
+                        Icon(
+                            Icons.Filled.Delete,
+                            contentDescription = stringResource(R.string.papelera)
+                        )
+                    },
                     label = { Text(stringResource(R.string.papelera)) },
-                    selected = selectedItemIndexNavDrawer == 1,
+                    selected = indiceElementoSelCajon == 1,
                     onClick = {
-                        vistaActual = VistaActual.PAPELERA
-                        selectedItemIndexNavDrawer = 1
-                        scope.launch { estadoCajonNavegacion.close() }
+                        vistaActualDeNotas = VistaActualNotas.PAPELERA
+                        indiceElementoSelCajon = 1
+                        alcanceCoroutine.launch { estadoCajonNavegacion.close() }
                     },
                     modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding)
                 )
 
                 NavigationDrawerItem(
-                    icon = { Icon(Icons.Filled.Info, contentDescription = stringResource(R.string.acerca_de)) },
+                    icon = {
+                        Icon(
+                            Icons.Filled.Info,
+                            contentDescription = stringResource(R.string.acerca_de)
+                        )
+                    },
                     label = { Text(stringResource(R.string.acerca_de)) },
-                    selected = selectedItemIndexNavDrawer == 2,
+                    selected = indiceElementoSelCajon == 2,
                     onClick = {
-                        selectedItemIndexNavDrawer = 2
-                        scope.launch { estadoCajonNavegacion.close() }
-                        onNavigateToAbout() // Navega a la pantalla "Acerca de"
+                        indiceElementoSelCajon = 2
+                        alcanceCoroutine.launch { estadoCajonNavegacion.close() }
+                        alNavegarAAcercaDe()
                     },
                     modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding)
                 )
 
-                Spacer(Modifier.weight(1f)) // Empuja lo siguiente hacia abajo
+                Spacer(Modifier.weight(1f))
                 HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))
 
                 NavigationDrawerItem(
-                    icon = { Icon(Icons.Filled.Settings, contentDescription = stringResource(R.string.settings_name)) },
+                    icon = {
+                        Icon(
+                            Icons.Filled.Settings,
+                            contentDescription = stringResource(R.string.settings_name)
+                        )
+                    },
                     label = { Text(stringResource(R.string.settings_name)) },
-                    selected = selectedItemIndexNavDrawer == 3, // Asume que el índice 3 es para Ajustes
+                    selected = indiceElementoSelCajon == 3,
                     onClick = {
-                        selectedItemIndexNavDrawer = 3
-                        scope.launch { estadoCajonNavegacion.close() }
-                        onNavigateToSettings() // Navega a la pantalla de Ajustes
+                        indiceElementoSelCajon = 3
+                        alcanceCoroutine.launch { estadoCajonNavegacion.close() }
+                        alNavegarAAjustes()
                     },
                     modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding)
                 )
@@ -196,139 +240,277 @@ fun PantallaPrincipalNotas(
             topBar = {
                 TopAppBar(
                     title = {
-                        Text(
-                            text = if (vistaActual == VistaActual.NOTAS_ACTIVAS) stringResource(R.string.nombre_aplicacion)
-                            else stringResource(R.string.papelera),
-                        )
+                        if (busquedaEstaActiva) {
+                            val focusRequester = remember { FocusRequester() }
+                            BasicTextField(
+                                value = consultaDeBusqueda,
+                                onValueChange = { consultaDeBusqueda = it },
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(end = 0.dp)
+                                    .focusRequester(focusRequester)
+                                    .onFocusChanged { focusState ->
+                                        esBusquedaFocused = focusState.isFocused
+                                    }
+                                    .background(
+                                        if (esBusquedaFocused) SearchFieldFocusedBackgroundColor
+                                        else SearchFieldDefaultBackgroundColor,
+                                        shape = RoundedCornerShape(8.dp)
+                                    )
+                                    .padding(horizontal = 8.dp, vertical = 8.dp),
+                                textStyle = MaterialTheme.typography.bodyLarge.copy(
+                                    color = MaterialTheme.colorScheme.onPrimaryContainer
+                                ),
+                                singleLine = true,
+                                keyboardOptions = KeyboardOptions.Default.copy(imeAction = ImeAction.Search),
+                                keyboardActions = KeyboardActions(onSearch = {
+                                    administradorDeFoco.clearFocus()
+                                }),
+                                decorationBox = { textFieldInterno ->
+                                    Box(
+                                        modifier = Modifier.fillMaxWidth(),
+                                        contentAlignment = Alignment.CenterStart
+                                    ) {
+                                        if (consultaDeBusqueda.isEmpty()) {
+                                            Text(
+                                                text = if (tipoDeFiltroBusqueda == TipoFiltroBusqueda.TITULO) stringResource(
+                                                    R.string.buscar_por_titulo
+                                                )
+                                                else stringResource(R.string.buscar_por_contenido),
+                                                style = MaterialTheme.typography.bodyLarge,
+                                                color = MaterialTheme.colorScheme.onPrimaryContainer.copy(
+                                                    alpha = 0.6f
+                                                )
+                                            )
+                                        }
+                                        textFieldInterno()
+                                    }
+                                }
+                            )
+                            LaunchedEffect(Unit) {
+                                focusRequester.requestFocus()
+                            }
+                        } else {
+                            Text(
+                                text = if (vistaActualDeNotas == VistaActualNotas.ACTIVAS) stringResource(
+                                    R.string.nombre_aplicacion
+                                )
+                                else stringResource(R.string.papelera)
+                            )
+                        }
                     },
                     navigationIcon = {
-                        IconButton(onClick = {
-                            scope.launch {
-                                estadoCajonNavegacion.apply { if (isClosed) open() else close() }
+                        if (busquedaEstaActiva) {
+                            IconButton(onClick = {
+                                busquedaEstaActiva = false
+                                consultaDeBusqueda = ""
+                            }) {
+                                Icon(
+                                    Icons.AutoMirrored.Filled.ArrowBack,
+                                    contentDescription = stringResource(R.string.cerrar_busqueda_desc)
+                                )
                             }
-                        }) {
-                            Icon(
-                                imageVector = Icons.Filled.Menu,
-                                contentDescription = stringResource(R.string.menu_descripcion)
-                            )
+                        } else {
+                            IconButton(onClick = {
+                                alcanceCoroutine.launch { estadoCajonNavegacion.open() }
+                            }) {
+                                Icon(
+                                    Icons.Filled.Menu,
+                                    contentDescription = stringResource(R.string.menu_descripcion)
+                                )
+                            }
                         }
                     },
                     actions = {
-                        // Botón de Ajustes en la TopAppBar que navega a la pantalla de Ajustes
-                        IconButton(onClick = onNavigateToSettings) {
-                            Icon(
-                                imageVector = Icons.Filled.Settings,
-                                contentDescription = stringResource(R.string.settings_name)
-                            )
+                        if (busquedaEstaActiva) {
+                            IconButton(onClick = {
+                                tipoDeFiltroBusqueda =
+                                    if (tipoDeFiltroBusqueda == TipoFiltroBusqueda.TITULO) TipoFiltroBusqueda.CONTENIDO else TipoFiltroBusqueda.TITULO
+                            }) {
+                                Icon(
+                                    imageVector = if (tipoDeFiltroBusqueda == TipoFiltroBusqueda.TITULO) Icons.Filled.Abc else Icons.AutoMirrored.Filled.Notes,
+                                    contentDescription = stringResource(R.string.cambiar_filtro_busqueda_desc)
+                                )
+                            }
+                            if (consultaDeBusqueda.isNotEmpty()) {
+                                IconButton(onClick = { consultaDeBusqueda = "" }) {
+                                    Icon(
+                                        Icons.Filled.Clear,
+                                        contentDescription = stringResource(R.string.limpiar_busqueda_desc)
+                                    )
+                                }
+                            }
+                        } else {
+                            IconButton(onClick = { busquedaEstaActiva = true }) {
+                                Icon(
+                                    Icons.Filled.Search,
+                                    contentDescription = stringResource(R.string.abrir_busqueda_desc)
+                                )
+                            }
+                            IconButton(onClick = alNavegarAAjustes) {
+                                Icon(
+                                    imageVector = Icons.Filled.Settings,
+                                    contentDescription = stringResource(R.string.settings_name)
+                                )
+                            }
                         }
-                    }
+                    },
+                    colors = TopAppBarDefaults.topAppBarColors(
+                        containerColor = MaterialTheme.colorScheme.primaryContainer,
+                        titleContentColor = MaterialTheme.colorScheme.onPrimaryContainer,
+                        actionIconContentColor = MaterialTheme.colorScheme.onPrimaryContainer,
+                        navigationIconContentColor = MaterialTheme.colorScheme.onPrimaryContainer
+                    )
                 )
             },
             floatingActionButton = {
-                when (vistaActual) {
-                    VistaActual.NOTAS_ACTIVAS -> {
-                        FloatingActionButton(onClick = {
-                            contadorDeNotas++
-                            val nuevaNota = Nota(
-                                id = contadorDeNotas, // Usar el contador como ID (simple)
-                                titulo = "${context.getString(R.string.nota_nueva_titulo_prefijo)} $contadorDeNotas",
-                                contenido = ""
-                            )
-                            // Pre-rellenar para el diálogo de edición
-                            notaParaEditar = nuevaNota // Marcar como nueva nota para editar
-                            tituloEditado = nuevaNota.titulo
-                            contenidoEditado = nuevaNota.contenido
-                            mostrarDialogoEdicion = true
-                        }) {
-                            Icon(Icons.Filled.Add, stringResource(R.string.anadir_nueva_nota))
+                if (!busquedaEstaActiva) {
+                    when (vistaActualDeNotas) {
+                        VistaActualNotas.ACTIVAS -> {
+                            FloatingActionButton(onClick = {
+                                contadorIdNotas++
+                                val nuevaNota =
+                                    Nota( // Al crear una nueva nota, esImportante es false por defecto
+                                        id = contadorIdNotas,
+                                        titulo = "${contexto.getString(R.string.nota_nueva_titulo_prefijo)} $contadorIdNotas",
+                                        contenido = ""
+                                        // esImportante = false // Ya es el valor por defecto en data class
+                                    )
+                                notaParaEditarActual = nuevaNota
+                                tituloEditadoTemporal = nuevaNota.titulo
+                                contenidoEditadoTemporal = nuevaNota.contenido
+                                esImportanteTemporalDialogo =
+                                    nuevaNota.esImportante // Se inicializa con el valor de la nota (false para nuevas)
+                                mostrarDialogoEdicionNota = true
+                            }) {
+                                Icon(Icons.Filled.Add, stringResource(R.string.anadir_nueva_nota))
+                            }
                         }
-                    }
-                    VistaActual.PAPELERA -> {
-                        if (listaDeNotasGlobal.any { it.estaEnPapelera }) {
-                            FloatingActionButton(
-                                onClick = {
-                                    mostrarDialogoVaciarPapeleraConfirmacion = true
-                                },
-                                containerColor = MaterialTheme.colorScheme.errorContainer,
-                                contentColor = MaterialTheme.colorScheme.onErrorContainer
-                            ) {
-                                Icon(
-                                    // Icons.Filled.DeleteForever, // Comentado o eliminado
-                                    imageVector = Icons.Filled.Delete, // Opción 1: Usar Delete normal
-                                    // imageVector = Icons.Filled.DeleteOutline, // Opción 2: Usar DeleteOutline
-                                    contentDescription = stringResource(R.string.vaciar_papelera_descripcion)
-                                )
+
+                        VistaActualNotas.PAPELERA -> {
+                            if (listaDeNotasGlobal.any { it.estaEnPapelera }) {
+                                FloatingActionButton(
+                                    onClick = {
+                                        mostrarDialogoVaciarPapeleraConf = true
+                                    },
+                                    containerColor = MaterialTheme.colorScheme.errorContainer,
+                                    contentColor = MaterialTheme.colorScheme.onErrorContainer
+                                ) {
+                                    Icon(
+                                        Icons.Filled.DeleteSweep,
+                                        contentDescription = stringResource(R.string.vaciar_papelera_descripcion)
+                                    )
+                                }
                             }
                         }
                     }
                 }
             },
             floatingActionButtonPosition = FabPosition.End
-        ) { innerPadding ->
-            val notasAMostrar = when (vistaActual) {
-                VistaActual.NOTAS_ACTIVAS -> listaDeNotasGlobal.filter { !it.estaEnPapelera }
-                VistaActual.PAPELERA -> listaDeNotasGlobal.filter { it.estaEnPapelera }
+        ) { paddingInterno ->
+
+            val notasFiltradasSegunVista = when (vistaActualDeNotas) {
+                VistaActualNotas.ACTIVAS -> listaDeNotasGlobal.filter { !it.estaEnPapelera }
+                VistaActualNotas.PAPELERA -> listaDeNotasGlobal.filter { it.estaEnPapelera }
             }
 
-            if (notasAMostrar.isEmpty()) {
+            val notasAMostrarEnLista = if (busquedaEstaActiva && consultaDeBusqueda.isNotBlank()) {
+                notasFiltradasSegunVista.filter { nota ->
+                    when (tipoDeFiltroBusqueda) {
+                        TipoFiltroBusqueda.TITULO -> nota.titulo.contains(
+                            consultaDeBusqueda,
+                            ignoreCase = true
+                        )
+
+                        TipoFiltroBusqueda.CONTENIDO -> nota.contenido.contains(
+                            consultaDeBusqueda,
+                            ignoreCase = true
+                        )
+                    }
+                }
+            } else {
+                notasFiltradasSegunVista
+            }
+
+
+            if (notasAMostrarEnLista.isEmpty()) {
                 Box(
                     modifier = Modifier
-                        .padding(innerPadding)
+                        .padding(paddingInterno)
                         .fillMaxSize(),
                     contentAlignment = Alignment.Center
                 ) {
                     Text(
-                        if (vistaActual == VistaActual.NOTAS_ACTIVAS) stringResource(R.string.mensaje_no_hay_notas)
+                        if (busquedaEstaActiva && consultaDeBusqueda.isNotBlank()) stringResource(R.string.mensaje_no_hay_resultados_busqueda)
+                        else if (vistaActualDeNotas == VistaActualNotas.ACTIVAS) stringResource(R.string.mensaje_no_hay_notas)
                         else stringResource(R.string.mensaje_papelera_vacia)
                     )
                 }
             } else {
                 LazyColumn(
                     modifier = Modifier
-                        .padding(innerPadding)
+                        .padding(paddingInterno)
                         .fillMaxSize()
                         .padding(8.dp)
                 ) {
-                    items(notasAMostrar, key = { it.id }) { nota ->
+                    items(notasAMostrarEnLista, key = { it.id }) { nota ->
                         Card(
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .padding(vertical = 4.dp)
-                                .pointerInput(nota) { // Usar 'nota' como key aquí
+                                .pointerInput(nota) {
                                     detectTapGestures(
                                         onTap = {
-                                            if (vistaActual == VistaActual.NOTAS_ACTIVAS && !nota.estaEnPapelera) {
-                                                notaParaEditar = nota
-                                                tituloEditado = nota.titulo
-                                                contenidoEditado = nota.contenido
-                                                mostrarDialogoEdicion = true
-                                            } else if (vistaActual == VistaActual.PAPELERA && nota.estaEnPapelera) {
-                                                // TODO: Implementar opciones para notas en papelera (Restaurar, Eliminar permanente individual)
-                                                // Podrías mostrar un BottomSheet o un AlertDialog con opciones
-                                                Toast.makeText(
-                                                    context,
-                                                    "${context.getString(R.string.opciones_para_nota_en_papelera)}: ${nota.titulo}",
-                                                    Toast.LENGTH_SHORT
-                                                ).show()
+                                            if (vistaActualDeNotas == VistaActualNotas.ACTIVAS && !nota.estaEnPapelera) {
+                                                notaParaEditarActual = nota
+                                                tituloEditadoTemporal = nota.titulo
+                                                contenidoEditadoTemporal = nota.contenido
+                                                esImportanteTemporalDialogo =
+                                                    nota.esImportante // Carga el estado de importancia
+                                                mostrarDialogoEdicionNota = true
+                                            } else if (vistaActualDeNotas == VistaActualNotas.PAPELERA && nota.estaEnPapelera) {
+                                                Toast
+                                                    .makeText(
+                                                        contexto,
+                                                        "${contexto.getString(R.string.opciones_para_nota_en_papelera)}: ${nota.titulo}",
+                                                        Toast.LENGTH_SHORT
+                                                    )
+                                                    .show()
                                             }
                                         },
                                         onLongPress = {
-                                            if (vistaActual == VistaActual.NOTAS_ACTIVAS && !nota.estaEnPapelera) {
-                                                notaParaAccionLarga = nota
-                                                mostrarDialogoEnviarAPapeleraConfirmacion = true
+                                            if (vistaActualDeNotas == VistaActualNotas.ACTIVAS && !nota.estaEnPapelera) {
+                                                notaParaAccionLargaDialogo = nota
+                                                mostrarDialogoEnviarPapeleraConf = true
                                             }
-                                            // Si está en papelera, podrías ofrecer un menú contextual diferente con onLongPress
                                         }
                                     )
                                 }
                         ) {
                             Column(modifier = Modifier.padding(16.dp)) {
-                                Text(nota.titulo, style = MaterialTheme.typography.titleMedium)
+                                Row( // Row para título e icono de importancia
+                                    modifier = Modifier.fillMaxWidth(),
+                                    verticalAlignment = Alignment.CenterVertically
+                                ) {
+                                    Text(
+                                        nota.titulo,
+                                        style = MaterialTheme.typography.titleMedium,
+                                        modifier = Modifier.weight(1f) // Título ocupa espacio disponible
+                                    )
+                                    if (nota.esImportante) { // Muestra icono si es importante
+                                        Icon(
+                                            imageVector = Icons.Filled.Star, // Icono de estrella
+                                            contentDescription = stringResource(R.string.nota_importante_desc),
+                                            tint = MaterialTheme.colorScheme.primary, // Color distintivo
+                                            modifier = Modifier.padding(start = 8.dp) // Espacio a la izquierda del icono
+                                        )
+                                    }
+                                }
                                 Spacer(modifier = Modifier.height(4.dp))
                                 Text(
                                     nota.contenido,
                                     style = MaterialTheme.typography.bodyMedium,
-                                    maxLines = 3 // Limita las líneas en la vista de lista
+                                    maxLines = 3
                                 )
                                 if (nota.estaEnPapelera) {
                                     Spacer(modifier = Modifier.height(4.dp))
@@ -347,120 +529,187 @@ fun PantallaPrincipalNotas(
     }
 
     // Diálogo de Edición de Nota
-    if (mostrarDialogoEdicion) { // No es necesario notaParaEditar != null si la lógica de apertura es correcta
-        val esNuevaNota = listaDeNotasGlobal.find { it.id == notaParaEditar?.id } == null
+    if (mostrarDialogoEdicionNota) {
+        val esRealmenteNuevaNota =
+            listaDeNotasGlobal.find { it.id == notaParaEditarActual?.id } == null
 
         AlertDialog(
             onDismissRequest = {
-                // Si es una nueva nota y se cancela, no la añadimos si no se guardó
-                // (aunque en este flujo ya se añade al hacer clic en FAB y luego se edita)
-                mostrarDialogoEdicion = false
-                notaParaEditar = null // Limpiar siempre
+                mostrarDialogoEdicionNota = false
+                notaParaEditarActual = null
             },
-            title = { Text(if (esNuevaNota || notaParaEditar?.titulo?.startsWith(stringResource(R.string.nota_nueva_titulo_prefijo)) == true) stringResource(R.string.crear_nota_titulo) else stringResource(R.string.editar_nota_titulo)) },
+            title = {
+                Text(
+                    if (esRealmenteNuevaNota || notaParaEditarActual?.titulo?.startsWith(
+                            stringResource(R.string.nota_nueva_titulo_prefijo)
+                        ) == true
+                    ) stringResource(R.string.crear_nota_titulo) else stringResource(R.string.editar_nota_titulo)
+                )
+            },
             text = {
                 Column {
                     OutlinedTextField(
-                        value = tituloEditado,
-                        onValueChange = { tituloEditado = it },
+                        value = tituloEditadoTemporal,
+                        onValueChange = { tituloEditadoTemporal = it },
                         label = { Text(stringResource(R.string.titulo_label)) },
-                        modifier = Modifier.fillMaxWidth(),
-                        singleLine = true
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .onFocusChanged { focusState ->
+                                esTituloDialogoFocused = focusState.isFocused
+                            },
+                        singleLine = true,
+                        colors = OutlinedTextFieldDefaults.colors( // <--- NUEVO
+                            focusedContainerColor = TextFieldFocusedBackgroundColor,
+                            unfocusedContainerColor = TextFieldDefaultBackgroundColor,
+                            focusedBorderColor = TextFieldFocusedBorderColor,
+                            unfocusedBorderColor = TextFieldDefaultBorderColor,
+                            focusedLabelColor = TextFieldFocusedLabelColor,
+                            unfocusedLabelColor = TextFieldDefaultLabelColor,
+                            focusedTextColor = TextFieldFocusedContentColor,
+                            unfocusedTextColor = TextFieldDefaultContentColor
+                            // Puedes añadir más personalizaciones de color si es necesario
+                        )
                     )
                     Spacer(modifier = Modifier.height(8.dp))
                     OutlinedTextField(
-                        value = contenidoEditado,
-                        onValueChange = { contenidoEditado = it },
+                        value = contenidoEditadoTemporal,
+                        onValueChange = { contenidoEditadoTemporal = it },
                         label = { Text(stringResource(R.string.contenido_label)) },
                         modifier = Modifier
                             .fillMaxWidth()
-                            .height(150.dp) // Altura para el contenido
+                            .height(150.dp)
+                            .onFocusChanged { focusState ->
+                                esContenidoDialogoFocused = focusState.isFocused
+                            },
+                        colors = OutlinedTextFieldDefaults.colors( // <--- NUEVO
+                            focusedContainerColor = TextFieldFocusedBackgroundColor,
+                            unfocusedContainerColor = TextFieldDefaultBackgroundColor,
+                            focusedBorderColor = TextFieldFocusedBorderColor,
+                            unfocusedBorderColor = TextFieldDefaultBorderColor,
+                            focusedLabelColor = TextFieldFocusedLabelColor,
+                            unfocusedLabelColor = TextFieldDefaultLabelColor,
+                            focusedTextColor = TextFieldFocusedContentColor,
+                            unfocusedTextColor = TextFieldDefaultContentColor
+                        )
                     )
+                    Spacer(modifier = Modifier.height(16.dp)) // Espacio antes del Checkbox
+                    Row( // Row para el Checkbox y su etiqueta
+                        verticalAlignment = Alignment.CenterVertically,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clickable {
+                                esImportanteTemporalDialogo = !esImportanteTemporalDialogo
+                            } // Hace toda la fila clickeable
+                            .padding(vertical = 4.dp)
+                    ) {
+                        Checkbox(
+                            checked = esImportanteTemporalDialogo,
+                            onCheckedChange = { esImportanteTemporalDialogo = it }
+                        )
+                        Spacer(modifier = Modifier.width(8.dp))
+                        Text(stringResource(R.string.marcar_como_importante_label))
+                    }
                 }
             },
             confirmButton = {
                 Button(
                     onClick = {
-                        notaParaEditar?.let { notaActual ->
-                            val index = listaDeNotasGlobal.indexOfFirst { it.id == notaActual.id }
-                            if (index != -1) { // Editando nota existente
-                                listaDeNotasGlobal[index] = notaActual.copy(
-                                    titulo = tituloEditado.ifBlank { context.getString(R.string.nota_sin_titulo) },
-                                    contenido = contenidoEditado
+                        notaParaEditarActual?.let { notaActual ->
+                            val indice = listaDeNotasGlobal.indexOfFirst { it.id == notaActual.id }
+                            val tituloFinal =
+                                tituloEditadoTemporal.ifBlank { contexto.getString(R.string.nota_sin_titulo) }
+
+                            if (indice != -1) { // Editando nota existente
+                                listaDeNotasGlobal[indice] = notaActual.copy(
+                                    titulo = tituloFinal,
+                                    contenido = contenidoEditadoTemporal,
+                                    esImportante = esImportanteTemporalDialogo // Guarda el estado de importancia
                                 )
-                            } else { // Creando nueva nota (ya se añadió al hacer clic en FAB)
-                                // Actualizar la nota que se añadió con el ID temporal si es necesario
-                                // O si la lógica es que solo se añade aquí tras confirmar:
+                            } else { // Creando nueva nota (o actualizando la que se añadió desde el FAB)
                                 val notaAGuardar = notaActual.copy(
-                                    titulo = tituloEditado.ifBlank { context.getString(R.string.nota_sin_titulo) },
-                                    contenido = contenidoEditado
+                                    titulo = tituloFinal,
+                                    contenido = contenidoEditadoTemporal,
+                                    esImportante = esImportanteTemporalDialogo // Guarda el estado de importancia
                                 )
-                                // Si es realmente una nota nueva que no está en la lista global aún
-                                if (listaDeNotasGlobal.none{it.id == notaAGuardar.id}) {
+                                if (listaDeNotasGlobal.none { it.id == notaAGuardar.id }) {
                                     listaDeNotasGlobal.add(notaAGuardar)
-                                } else { // Es una nota que ya estaba (el caso del FAB que la añade y luego edita)
-                                    val existingIndex = listaDeNotasGlobal.indexOfFirst { it.id == notaAGuardar.id }
-                                    if(existingIndex != -1) listaDeNotasGlobal[existingIndex] = notaAGuardar else TODO()
+                                } else {
+                                    val indiceExistente =
+                                        listaDeNotasGlobal.indexOfFirst { it.id == notaAGuardar.id }
+                                    if (indiceExistente != -1) listaDeNotasGlobal[indiceExistente] =
+                                        notaAGuardar
                                 }
                             }
                         }
-                        mostrarDialogoEdicion = false
-                        notaParaEditar = null
+                        mostrarDialogoEdicionNota = false
+                        notaParaEditarActual = null
                     }
                 ) { Text(stringResource(R.string.guardar_boton)) }
             },
             dismissButton = {
                 Button(onClick = {
-                    // Si es una nota nueva y no se guardó, se podría eliminar de listaDeNotasGlobal aquí
-                    // Pero la lógica actual la añade al pulsar el FAB.
-                    // Si no quieres que se añada hasta guardar, el FAB no debería añadirla a la lista.
-                    mostrarDialogoEdicion = false
-                    notaParaEditar = null
+                    mostrarDialogoEdicionNota = false
+                    notaParaEditarActual = null
                 }) { Text(stringResource(R.string.cancelar_boton)) }
             }
         )
     }
 
-    // Diálogo de confirmación para ENVIAR a la papelera
-    if (mostrarDialogoEnviarAPapeleraConfirmacion && notaParaAccionLarga != null) {
+    // Diálogos de confirmación (Enviar a papelera, Vaciar papelera) - sin cambios en su lógica interna
+    if (mostrarDialogoEnviarPapeleraConf && notaParaAccionLargaDialogo != null) {
         AlertDialog(
             onDismissRequest = {
-                mostrarDialogoEnviarAPapeleraConfirmacion = false
-                notaParaAccionLarga = null
+                mostrarDialogoEnviarPapeleraConf = false
+                notaParaAccionLargaDialogo = null
             },
             icon = { Icon(Icons.Filled.DeleteSweep, contentDescription = null) },
             title = { Text(stringResource(R.string.enviar_a_papelera_titulo)) },
-            text = { Text(stringResource(R.string.confirmar_enviar_a_papelera_mensaje, notaParaAccionLarga?.titulo ?: "")) },
+            text = {
+                Text(
+                    stringResource(
+                        R.string.confirmar_enviar_a_papelera_mensaje,
+                        notaParaAccionLargaDialogo?.titulo ?: ""
+                    )
+                )
+            },
             confirmButton = {
                 Button(
                     onClick = {
-                        notaParaAccionLarga?.let { notaAMover ->
-                            val index = listaDeNotasGlobal.indexOfFirst { it.id == notaAMover.id }
-                            if (index != -1) {
-                                listaDeNotasGlobal[index] = notaAMover.copy(estaEnPapelera = true)
-                                // USA context.getString() AQUÍ
-                                Toast.makeText(context, context.getString(R.string.nota_enviada_a_papelera_toast), Toast.LENGTH_SHORT).show()
+                        notaParaAccionLargaDialogo?.let { notaAMover ->
+                            val indice = listaDeNotasGlobal.indexOfFirst { it.id == notaAMover.id }
+                            if (indice != -1) {
+                                listaDeNotasGlobal[indice] = notaAMover.copy(estaEnPapelera = true)
+                                Toast.makeText(
+                                    contexto,
+                                    contexto.getString(R.string.nota_enviada_a_papelera_toast),
+                                    Toast.LENGTH_SHORT
+                                ).show()
                             }
                         }
-                        mostrarDialogoEnviarAPapeleraConfirmacion = false
-                        notaParaAccionLarga = null
+                        mostrarDialogoEnviarPapeleraConf = false
+                        notaParaAccionLargaDialogo = null
                     }
-                ) { Text(stringResource(R.string.enviar_boton)) } // stringResource está bien aquí
+                ) { Text(stringResource(R.string.enviar_boton)) }
             },
             dismissButton = {
                 TextButton(onClick = {
-                    mostrarDialogoEnviarAPapeleraConfirmacion = false
-                    notaParaAccionLarga = null
-                }) { Text(stringResource(R.string.cancelar_boton)) } // stringResource está bien aquí
+                    mostrarDialogoEnviarPapeleraConf = false
+                    notaParaAccionLargaDialogo = null
+                }) { Text(stringResource(R.string.cancelar_boton)) }
             }
         )
     }
 
-    // Diálogo de confirmación para VACIAR PAPELERA
-    if (mostrarDialogoVaciarPapeleraConfirmacion) {
+    if (mostrarDialogoVaciarPapeleraConf) {
         AlertDialog(
-            onDismissRequest = { mostrarDialogoVaciarPapeleraConfirmacion = false },
-            icon = { Icon(Icons.Filled.DeleteForever, contentDescription = null, tint = MaterialTheme.colorScheme.error) },
+            onDismissRequest = { mostrarDialogoVaciarPapeleraConf = false },
+            icon = {
+                Icon(
+                    Icons.Filled.DeleteForever,
+                    contentDescription = null,
+                    tint = MaterialTheme.colorScheme.error
+                )
+            },
             title = { Text(stringResource(R.string.vaciar_papelera_confirmacion_titulo)) },
             text = { Text(stringResource(R.string.vaciar_papelera_confirmacion_mensaje)) },
             confirmButton = {
@@ -468,130 +717,134 @@ fun PantallaPrincipalNotas(
                     onClick = {
                         val notasAEliminar = listaDeNotasGlobal.filter { it.estaEnPapelera }
                         listaDeNotasGlobal.removeAll(notasAEliminar.toSet())
-                        // USA context.getString() AQUÍ
-                        Toast.makeText(context, context.getString(R.string.papelera_vaciada_toast), Toast.LENGTH_SHORT).show()
-                        mostrarDialogoVaciarPapeleraConfirmacion = false
+                        Toast.makeText(
+                            contexto,
+                            contexto.getString(R.string.papelera_vaciada_toast),
+                            Toast.LENGTH_SHORT
+                        ).show()
+                        mostrarDialogoVaciarPapeleraConf = false
                     },
                     colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.error)
                 ) {
-                    Text(stringResource(R.string.vaciar_boton)) // Aquí stringResource está bien porque Text() es @Composable
+                    Text(stringResource(R.string.vaciar_boton))
                 }
             },
             dismissButton = {
-                TextButton(onClick = { mostrarDialogoVaciarPapeleraConfirmacion = false }) {
-                    Text(stringResource(R.string.cancelar_boton)) // Aquí stringResource está bien
+                TextButton(onClick = { mostrarDialogoVaciarPapeleraConf = false }) {
+                    Text(stringResource(R.string.cancelar_boton))
                 }
             }
         )
     }
 }
 
-// --- Previews ---
-@Preview(showBackground = true, name = "App Principal Preview (Light)")
+@Preview(showBackground = true, name = "App Principal (Notas) Preview (Light)")
 @Composable
-fun PantallaPrincipalNotasAppPreviewLight() {
+fun PantallaPrincipalNotasPreviewLight() {
     Proyecto_ABP_Bloc_de_NotasTheme(darkTheme = false) {
-        PantallaPrincipalNotasApp(
-            initialDarkTheme = false,
-            onThemeChange = {}
+        PantallaPrincipalNotas(
+            pantallaActual = PantallaAplicacion.LISTA_NOTAS,
+            alNavegarAAjustes = {},
+            alNavegarAAcercaDe = {},
+            alNavegarAListaNotas = {},
+            esTemaOscuro = false,
+            alCambiarTemaApp = {}
         )
     }
 }
 
-@Preview(showBackground = true, name = "App Principal Preview (Dark)")
+@Preview(showBackground = true, name = "App Principal (Notas) Preview (Dark)")
 @Composable
-fun PantallaPrincipalNotasAppPreviewDark() {
+fun PantallaPrincipalNotasPreviewDark() {
     Proyecto_ABP_Bloc_de_NotasTheme(darkTheme = true) {
-        PantallaPrincipalNotasApp(
-            initialDarkTheme = true,
-            onThemeChange = {}
+        PantallaPrincipalNotas(
+            pantallaActual = PantallaAplicacion.LISTA_NOTAS,
+            alNavegarAAjustes = {},
+            alNavegarAAcercaDe = {},
+            alNavegarAListaNotas = {},
+            esTemaOscuro = true,
+            alCambiarTemaApp = {}
         )
     }
 }
 
-@Preview(showBackground = true, name = "Notas List Preview (Light)")
-@Composable
-fun DefaultPreviewLight() {
-    Proyecto_ABP_Bloc_de_NotasTheme(darkTheme = false) {
-        PantallaPrincipalNotas(onNavigateToSettings = {}, onNavigateToAbout = {})
-    }
-}
-
-@Preview(showBackground = true, name = "Notas List Preview (Dark)")
-@Composable
-fun DefaultPreviewDark() {
-    Proyecto_ABP_Bloc_de_NotasTheme(darkTheme = true) {
-        PantallaPrincipalNotas(onNavigateToSettings = {}, onNavigateToAbout = {})
-    }
-}
-
-// Simulación de PantallaAjustes y PantallaAcercaDe para que las Previews y el código compilen
-// Deberías tener estos en sus propios archivos o implementaciones completas.
-@OptIn(ExperimentalMaterial3Api::class) // <--- AÑADE O VERIFICA ESTO
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun PantallaAjustes(
-    isDarkTheme: Boolean,
-    onThemeChanged: (Boolean) -> Unit,
-    onNavigateBack: () -> Unit
+    esTemaOscuro: Boolean,
+    alCambiarTema: (Boolean) -> Unit,
+    alNavegarAtras: () -> Unit
 ) {
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Ajustes") },
+                title = { Text(stringResource(R.string.settings_name)) },
                 navigationIcon = {
-                    IconButton(onClick = onNavigateBack) {
-                        Icon(Icons.Filled.ArrowBack, "Volver")
+                    IconButton(onClick = alNavegarAtras) {
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, stringResource(R.string.volver_descripcion))
                     }
                 }
             )
         }
-    ) { padding -> // El 'padding' que viene de Scaffold content es parte de la API experimental
+    ) { paddingInternoScaffold ->
         Column(
             modifier = Modifier
-                .padding(padding) // Usando el padding del Scaffold
+                .padding(paddingInternoScaffold)
                 .fillMaxSize()
                 .padding(16.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Center
+            verticalArrangement = Arrangement.Top
         ) {
-            Text("Pantalla de Ajustes")
-            Spacer(modifier = Modifier.height(16.dp))
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                Text("Tema Oscuro")
-                Spacer(modifier = Modifier.width(8.dp))
-                Switch(checked = isDarkTheme, onCheckedChange = onThemeChanged)
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Text(stringResource(R.string.tema_oscuro_label))
+                Spacer(modifier = Modifier.weight(1f))
+                Switch(checked = esTemaOscuro, onCheckedChange = alCambiarTema)
             }
         }
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class) // <--- AÑADE O VERIFICA ESTO
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun PantallaAcercaDe(onNavigateBack: () -> Unit) {
+fun PantallaAcercaDe(alNavegarAtras: () -> Unit) {
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Acerca de") },
+                title = { Text(stringResource(R.string.acerca_de_titulo_pantalla)) },
                 navigationIcon = {
-                    IconButton(onClick = onNavigateBack) {
-                        Icon(Icons.Filled.ArrowBack, "Volver")
+                    IconButton(onClick = alNavegarAtras) {
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, stringResource(R.string.volver_descripcion))
                     }
                 }
             )
         }
-    ) { padding ->
+    ) { paddingInternoScaffold ->
         Column(
             modifier = Modifier
-                .padding(padding) // El padding del Scaffold M3
+                .padding(paddingInternoScaffold)
                 .fillMaxSize()
                 .padding(16.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center
         ) {
-            Text("Pantalla Acerca De")
-            Text("Versión: 1.0.0")
-            Text("Año: 2025")
+            Text(
+                stringResource(R.string.nombre_aplicacion),
+                style = MaterialTheme.typography.headlineSmall
+            )
+            Spacer(modifier = Modifier.height(8.dp))
+            Text("${stringResource(R.string.about_version_name_label)}: 1.0.0")
+            Spacer(modifier = Modifier.height(4.dp))
             Text("Autores: Juan Mañanes, David San Martin, Jose David Cabeza")
+            Spacer(modifier = Modifier.height(16.dp))
+            Text(
+                stringResource(
+                    R.string.about_copyright,
+                    java.util.Calendar.getInstance().get(java.util.Calendar.YEAR).toString()
+                )
+            )
         }
     }
 }

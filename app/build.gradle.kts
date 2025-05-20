@@ -53,6 +53,12 @@ dependencies {
     implementation(libs.androidx.constraintlayout)
     implementation(libs.androidx.material.icons.extended.android)
     implementation(libs.androidx.material.icons.extended.android.v170)
+    // Preferences DataStore
+    implementation(libs.androidx.datastore.preferences) // O la última versión estable
+
+    // Para collectAsStateWithLifecycle (opcional pero recomendado para Flows en Compose)
+    implementation(libs.androidx.lifecycle.runtime.compose) // O la última versión estable
+
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)

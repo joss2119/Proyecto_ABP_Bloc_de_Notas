@@ -72,6 +72,15 @@
     <string name="about_developer_value">Your Name / Team Name</string>
     <string name="about_contact_email_value">your.email@example.com</string>
     <string name="about_copyright">© %1$s Your Company/Name. All rights reserved.</string>
+    <string name="cambiar_filtro_busqueda_desc">Cambiar filtro de busqueda</string>
+    <string name="limpiar_busqueda_desc">Limpiar busqueda</string>
+    <string name="abrir_busqueda_desc">Abrir busqueda</string>
+    <string name="cerrar_busqueda_desc">Cerrar busqueda</string>
+    <string name="buscar_por_contenido">Buscar por contenido</string>
+    <string name="buscar_por_titulo">Buscar por titulo</string>
+    <string name="mensaje_no_hay_resultados_busqueda">No hay resultados para esa busqueda</string>
+    <string name="marcar_como_importante_label">Marcar como importante</string>
+    <string name="nota_importante_desc">Nota importante</string>
 
     <!-- <string name="app_name">Notes App ABP</string> -->
 
