@@ -2,6 +2,9 @@ plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
+    // Para poder marcarlas como importantes
+    id("kotlin-parcelize")
+    id("org.jetbrains.kotlin.plugin.serialization") version "2.1.21"
 }
 
 android {
@@ -51,13 +54,17 @@ dependencies {
     implementation(libs.androidx.material3)
     // Nuestros imports
     implementation(libs.androidx.constraintlayout)
+    implementation(libs.androidx.constraintlayout.compose)
     implementation(libs.androidx.material.icons.extended.android)
     implementation(libs.androidx.material.icons.extended.android.v170)
-    // Preferences DataStore
-    implementation(libs.androidx.datastore.preferences) // O la última versión estable
-
-    // Para collectAsStateWithLifecycle (opcional pero recomendado para Flows en Compose)
-    implementation(libs.androidx.lifecycle.runtime.compose) // O la última versión estable
+    // Kotlinx Serialization (para convertir la lista de notas a JSON y viceversa)
+    implementation(libs.kotlinx.serialization.json) // Verifica la última versión
+    // Lifecycle (para el scope de la coroutina en MainActivity)
+    implementation(libs.androidx.lifecycle.runtime.ktx)
+    implementation(libs.androidx.lifecycle.viewmodel.compose) // Si usas ViewModel
+    // DataStore para las preferencias de los usuarios
+    implementation(libs.androidx.datastore.preferences)
+    implementation(libs.androidx.lifecycle.runtime.compose)
 
 
     testImplementation(libs.junit)

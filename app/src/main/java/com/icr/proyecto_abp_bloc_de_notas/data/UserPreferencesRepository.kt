@@ -1,6 +1,7 @@
 package com.icr.proyecto_abp_bloc_de_notas.data // O el paquete que hayas creado
 
 import android.content.Context
+import android.util.Log
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.booleanPreferencesKey
@@ -9,6 +10,7 @@ import androidx.datastore.preferences.core.emptyPreferences
 import androidx.datastore.preferences.preferencesDataStore
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.catch
+import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.map
 import java.io.IOException
 
@@ -18,31 +20,35 @@ val Context.dataStore: DataStore<Preferences> by preferencesDataStore(name = "us
 
 class UserPreferencesRepository(private val context: Context) {
 
-    // Clave para la preferencia del tema oscuro
     private object PreferencesKeys {
         val IS_DARK_THEME = booleanPreferencesKey("is_dark_theme")
     }
 
-    // Flow para leer la preferencia del tema oscuro
-    // Emite 'true' si el tema oscuro está activo, 'false' en caso contrario (o por defecto).
     val isDarkTheme: Flow<Boolean> = context.dataStore.data
         .catch { exception ->
-            // IOException se lanza si hay un error al leer los datos.
             if (exception is IOException) {
-                emit(emptyPreferences()) // Si hay error, emitir preferencias vacías.
+                Log.e("UserPrefsRepo", "Error leyendo preferencias", exception) // LOG ERROR
+                emit(emptyPreferences())
             } else {
-                throw exception // Re-lanzar otras excepciones.
+                throw exception
             }
         }
         .map { preferences ->
-            // Leer el valor booleano. Si no existe, por defecto será 'false' (tema claro).
-            preferences[PreferencesKeys.IS_DARK_THEME] ?: false
+            val isDark = preferences[PreferencesKeys.IS_DARK_THEME] ?: false
+            Log.d("UserPrefsRepo", "Preferencia de tema leída: $isDark") // LOG LECTURA
+            isDark
         }
 
-    // Función para guardar la preferencia del tema oscuro
+
     suspend fun updateDarkThemePreference(isDarkTheme: Boolean) {
+        Log.d("UserPrefsRepo", "INTENTANDO GUARDAR preferencia de tema: $isDarkTheme") // Log A
         context.dataStore.edit { preferences ->
             preferences[PreferencesKeys.IS_DARK_THEME] = isDarkTheme
         }
+        Log.d("UserPrefsRepo", "Preferencia supuestamente guardada. Verificando lectura inmediata...") // Log B
+        // Leer inmediatamente para verificar
+        val valorLeido = context.dataStore.data.firstOrNull()?.get(PreferencesKeys.IS_DARK_THEME)
+        Log.d("UserPrefsRepo", "Valor REAL leído inmediatamente tras guardar: $valorLeido") // Log C
     }
+
 }

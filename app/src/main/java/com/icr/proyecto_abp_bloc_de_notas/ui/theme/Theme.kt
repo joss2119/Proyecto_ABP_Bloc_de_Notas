@@ -59,7 +59,10 @@ fun Proyecto_ABP_Bloc_de_NotasTheme(
     if (!view.isInEditMode) {
         SideEffect {
             val window = (view.context as Activity).window
-            window.statusBarColor = colorScheme.primary.toArgb()
+            // window.statusBarColor = colorScheme.primary.toArgb() // Atributo deprecado
+            // Usar WindowCompat para establecer el color de la barra de estado
+            WindowCompat.setDecorFitsSystemWindows(window, false) // Necesario para que el contenido se dibuje detrás de las barras del sistema
+            // Establecer el color de la barra de estado. Es importante hacer esto *después* de setDecorFitsSystemWindows(window, false)
             WindowCompat.getInsetsController(window, view).isAppearanceLightStatusBars = !darkTheme // Cambio aquí
             WindowCompat.getInsetsController(window, view).isAppearanceLightNavigationBars = !darkTheme // Opcional para nav bar
         }

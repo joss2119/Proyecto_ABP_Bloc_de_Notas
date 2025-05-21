@@ -1,3 +1,5 @@
+package com.icr.proyecto_abp_bloc_de_notas
+
 import android.content.res.Configuration
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row

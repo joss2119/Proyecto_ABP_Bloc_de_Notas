@@ -1,59 +1,98 @@
 package com.icr.proyecto_abp_bloc_de_notas
 
+// Importa NotasRepository desde donde esté (ej. data)
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState // Para coleccionar el Flow como State
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-// Quita mutableStateOf, remember y setValue si ya no los usas para esTemaOscuroPreferido directamente aquí
-// import androidx.compose.runtime.mutableStateOf
-// import androidx.compose.runtime.remember
-// import androidx.compose.runtime.setValue
-import androidx.core.view.WindowCompat
-import androidx.core.view.WindowInsetsControllerCompat
-import androidx.lifecycle.lifecycleScope // Para lanzar coroutines ligadas al ciclo de vida
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.viewModelScope
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.icr.proyecto_abp_bloc_de_notas.data.UserPreferencesRepository // Asegúrate que la ruta sea correcta
+// ELIMINADA: import com.icr.proyecto_abp_bloc_de_notas.data.dataStore // <--- CORRECCIÓN 1
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 
-class MainActivity : ComponentActivity() {
+// ViewModel para manejar la lógica de las notas y el tema
+class MainViewModel(
+    private val userPreferencesRepository: UserPreferencesRepository,
+    private val notasRepository: NotasRepository
+) : ViewModel() {
 
-    private lateinit var userPreferencesRepository: UserPreferencesRepository // Declara la variable
+    val temaOscuroUiState: StateFlow<Boolean> = userPreferencesRepository.isDarkTheme
+        .stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(5_000),
+            initialValue = false
+        )
+
+    fun guardarPreferenciaTema(esOscuro: Boolean) {
+        viewModelScope.launch {
+            userPreferencesRepository.updateDarkThemePreference(esOscuro)
+        }
+    }
+
+    val notasUiState: StateFlow<List<Nota>> = notasRepository.listaNotasFlow
+        .stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(5_000),
+            initialValue = emptyList()
+        )
+
+    val contadorIdNotasState: StateFlow<Int> = notasRepository.contadorIdNotasFlow
+        .stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(5_000),
+            initialValue = 0
+        )
+
+    fun guardarListaNotas(notas: List<Nota>) {
+        viewModelScope.launch {
+            notasRepository.guardarNotas(notas)
+        }
+    }
+
+    fun guardarContadorIdNotas(contador: Int) {
+        viewModelScope.launch {
+            notasRepository.guardarContadorIdNotas(contador)
+        }
+    }
+}
+
+class MainActivity : ComponentActivity() {
+    private lateinit var userPreferencesRepository: UserPreferencesRepository
+    private lateinit var notasRepository: NotasRepository
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
-        // Inicializa el repositorio
-        userPreferencesRepository = UserPreferencesRepository(applicationContext)
-
-        WindowCompat.setDecorFitsSystemWindows(window, false)
-        val insetsController = WindowInsetsControllerCompat(window, window.decorView)
+        userPreferencesRepository = UserPreferencesRepository(this)
+        notasRepository = NotasRepository(applicationContext)
 
         setContent {
-            // Lee la preferencia del tema desde DataStore y la observa como un State de Compose
-            // El valor inicial será 'false' hasta que DataStore emita el primer valor.
-            val esTemaOscuroPreferido by userPreferencesRepository.isDarkTheme.collectAsState(
-                initial = false // Valor inicial mientras se carga desde DataStore
+            val mainViewModel: MainViewModel = viewModel(
+                factory = object : ViewModelProvider.Factory {
+                    @Suppress("UNCHECKED_CAST")
+                    override fun <T : ViewModel> create(modelClass: Class<T>): T {
+                        if (modelClass.isAssignableFrom(MainViewModel::class.java)) {
+                            return MainViewModel(userPreferencesRepository, notasRepository) as T
+                        }
+                        throw IllegalArgumentException("Unknown ViewModel class: ${modelClass.name}")
+                    }
+                }
             )
 
-            LaunchedEffect(esTemaOscuroPreferido) {
-                val esClaro = !esTemaOscuroPreferido
-                insetsController.isAppearanceLightStatusBars = esClaro
-                insetsController.isAppearanceLightNavigationBars = esClaro
-            }
+            val esTemaOscuroActual by mainViewModel.temaOscuroUiState.collectAsState()
 
             PantallaPrincipalNotasApp(
-                temaInicialOscuro = esTemaOscuroPreferido,
-                alCambiarTema = { nuevoEstadoOscuro ->
-                    // Cuando el tema cambia, lo guardamos en DataStore
-                    // Usamos lifecycleScope para lanzar la coroutine
-                    lifecycleScope.launch {
-                        userPreferencesRepository.updateDarkThemePreference(nuevoEstadoOscuro)
-                    }
-                    // No necesitamos actualizar 'esTemaOscuroPreferido' manualmente aquí,
-                    // ya que el Flow 'isDarkTheme' emitirá el nuevo valor y
-                    // 'collectAsState' lo actualizará automáticamente, provocando la recomposición.
-                }
+                temaInicialOscuro = esTemaOscuroActual,
+                alCambiarTema = { nuevoEstado ->
+                    mainViewModel.guardarPreferenciaTema(nuevoEstado)
+                },
+                mainViewModel = mainViewModel
             )
         }
     }
