@@ -20,10 +20,16 @@
 | 7a | Posicionamiento relativo                                                                        | OK Implementado                     |
 | 7b | Márgenes                                                                                        | OK Implementado                     |
 | 7c | Centrado                                                                                        | OK Implementado                     |
-| 7d | Cadenas (chains) - Usar al menos 1 de los 4 tipos.                                              | CHECK No se evidencia uso explícito |
+| 7d | Cadenas (chains) - Usar al menos 1 de los 4 tipos.                                              | OK Implementado en Ajustes          |
 | 8  | Usar dos diseños según la orientación del dispositivo:                                          |                                     |
 | 8a | Vertical (portrait) - layout/activity_main.xml                                                  | OK Implementado                     |
 | 8b | Horizontal (landscape) - layout-land/activity_main.xml                                          | OK Implementado                     |
 | 9  | Activar el sensor giroscopio para cambio automático de diseño según orientación del móvil       | OK Implementado                     |
-| 10 | Usar un recurso dibujable (drawable) para cambiar el color de fondo, trazo y redondear esquinas | ERR No implementado                 |
+| 10 | Usar un recurso dibujable (drawable) para cambiar el color de fondo, trazo y redondear esquinas | OK Implementado                     | 
 | 11 | Localizar la app a tres idiomas distintos (español + otros 2)                                   | OK Implementado (es, en, de)        |
+
+10 → Ya estás implementando el equivalente funcional de "usar un recurso dibujable para cambiar el color de fondo, trazo y redondear esquinas" a través de:
+El parámetro shape del OutlinedTextField (o el heredado de MaterialTheme.shapes).
+El parámetro colors del OutlinedTextField (OutlinedTextFieldDefaults.colors(...)), donde defines:
+    focusedContainerColor y unfocusedContainerColor (para el fondo).
+    focusedBorderColor y unfocusedBorderColor (para el trazo).

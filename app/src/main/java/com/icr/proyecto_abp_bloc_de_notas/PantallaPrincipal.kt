@@ -26,6 +26,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.text.selection.TextSelectionColors
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.filled.Notes
@@ -33,18 +34,17 @@ import androidx.compose.material.icons.filled.Abc
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material.icons.filled.Delete
-import androidx.compose.material.icons.filled.DeleteForever
 import androidx.compose.material.icons.filled.DeleteSweep
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.Menu
+import androidx.compose.material.icons.filled.RestoreFromTrash
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.BasicAlertDialog
 import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.DrawerValue
@@ -97,11 +97,31 @@ import androidx.compose.ui.unit.dp
 import androidx.constraintlayout.compose.ChainStyle
 import androidx.constraintlayout.compose.ConstraintLayout
 import com.icr.proyecto_abp_bloc_de_notas.data.UserPreferencesRepository
+import com.icr.proyecto_abp_bloc_de_notas.ui.theme.DarkTextFieldCursorColor
+import com.icr.proyecto_abp_bloc_de_notas.ui.theme.DarkTextFieldDefaultBackgroundColor
+import com.icr.proyecto_abp_bloc_de_notas.ui.theme.DarkTextFieldDefaultBorderColor
+import com.icr.proyecto_abp_bloc_de_notas.ui.theme.DarkTextFieldDefaultContentColor
+import com.icr.proyecto_abp_bloc_de_notas.ui.theme.DarkTextFieldDefaultLabelColor
+import com.icr.proyecto_abp_bloc_de_notas.ui.theme.DarkTextFieldFocusedBackgroundColor
+import com.icr.proyecto_abp_bloc_de_notas.ui.theme.DarkTextFieldFocusedBorderColor
+import com.icr.proyecto_abp_bloc_de_notas.ui.theme.DarkTextFieldFocusedContentColor
+import com.icr.proyecto_abp_bloc_de_notas.ui.theme.DarkTextFieldFocusedLabelColor
+import com.icr.proyecto_abp_bloc_de_notas.ui.theme.DarkTextFieldSelectionBackgroundColor
+import com.icr.proyecto_abp_bloc_de_notas.ui.theme.DarkTextFieldSelectionHandleColor
+import com.icr.proyecto_abp_bloc_de_notas.ui.theme.LightTextFieldCursorColor
+import com.icr.proyecto_abp_bloc_de_notas.ui.theme.LightTextFieldDefaultBackgroundColor
+import com.icr.proyecto_abp_bloc_de_notas.ui.theme.LightTextFieldDefaultBorderColor
+import com.icr.proyecto_abp_bloc_de_notas.ui.theme.LightTextFieldDefaultContentColor
+import com.icr.proyecto_abp_bloc_de_notas.ui.theme.LightTextFieldDefaultLabelColor
+import com.icr.proyecto_abp_bloc_de_notas.ui.theme.LightTextFieldFocusedBackgroundColor
+import com.icr.proyecto_abp_bloc_de_notas.ui.theme.LightTextFieldFocusedBorderColor
+import com.icr.proyecto_abp_bloc_de_notas.ui.theme.LightTextFieldFocusedContentColor
+import com.icr.proyecto_abp_bloc_de_notas.ui.theme.LightTextFieldFocusedLabelColor
+import com.icr.proyecto_abp_bloc_de_notas.ui.theme.LightTextFieldSelectionBackgroundColor
+import com.icr.proyecto_abp_bloc_de_notas.ui.theme.LightTextFieldSelectionHandleColor
 import com.icr.proyecto_abp_bloc_de_notas.ui.theme.Proyecto_ABP_Bloc_de_NotasTheme
 import com.icr.proyecto_abp_bloc_de_notas.ui.theme.SearchFieldDefaultBackgroundColor
 import com.icr.proyecto_abp_bloc_de_notas.ui.theme.SearchFieldFocusedBackgroundColor
-import com.icr.proyecto_abp_bloc_de_notas.ui.theme.TextFieldDefaultBackgroundColor
-import com.icr.proyecto_abp_bloc_de_notas.ui.theme.TextFieldFocusedBackgroundColor
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.launch
@@ -109,6 +129,7 @@ import kotlinx.parcelize.Parcelize
 import kotlinx.serialization.Serializable
 import java.util.Calendar
 
+// ... (Nota data class y Enums sin cambios) ...
 @Parcelize
 @Serializable
 data class Nota(
@@ -158,6 +179,7 @@ fun PantallaPrincipalNotas(
     alCambiarTemaApp: (Boolean) -> Unit,
     mainViewModel: MainViewModel
 ) {
+    // ... (estados y LaunchedEffects para persistencia sin cambios) ...
     val estadoCajonNavegacion = rememberDrawerState(initialValue = DrawerValue.Closed)
     val alcanceCoroutine = rememberCoroutineScope()
     val contexto = LocalContext.current
@@ -214,6 +236,9 @@ fun PantallaPrincipalNotas(
     var campoBusquedaConFoco by remember { mutableStateOf(false) }
     var campoTituloDialogoConFoco by remember { mutableStateOf(false) }
     var campoContenidoDialogoConFoco by remember { mutableStateOf(false) }
+
+    var notaSeleccionadaEnPapeleraParaAccion by remember { mutableStateOf<Nota?>(null) }
+    var mostrarDialogoOpcionesPapelera by remember { mutableStateOf(false) }
 
 
     when (pantallaAppActual) {
@@ -451,7 +476,7 @@ fun PantallaPrincipalNotas(
             if (notasFinalesParaMostrar.isEmpty()) {
                 Box(
                     modifier = Modifier
-                        .padding(paddingDelScaffold) // Usar el padding del Scaffold aquí
+                        .padding(paddingDelScaffold)
                         .fillMaxSize(),
                     contentAlignment = Alignment.Center
                 ) {
@@ -465,9 +490,9 @@ fun PantallaPrincipalNotas(
             } else {
                 LazyColumn(
                     modifier = Modifier
-                        .padding(paddingDelScaffold) // Usar el padding del Scaffold aquí
+                        .padding(paddingDelScaffold)
                         .fillMaxSize()
-                        .padding(8.dp) // Padding adicional si es necesario para el contenido interno de la lista
+                        .padding(8.dp)
                 ) {
                     items(notasFinalesParaMostrar, key = { it.id }) { nota ->
                         Card(
@@ -484,11 +509,8 @@ fun PantallaPrincipalNotas(
                                                 esImportanteTemporal = nota.esImportante
                                                 mostrarDialogoEdicionNota = true
                                             } else if (vistaNotasActual == VistaActualNotas.PAPELERA && nota.estaEnPapelera) {
-                                                Toast.makeText(
-                                                    contexto,
-                                                    contexto.getString(R.string.opciones_papelera_nota_toast, nota.titulo),
-                                                    Toast.LENGTH_SHORT
-                                                ).show()
+                                                notaSeleccionadaEnPapeleraParaAccion = nota
+                                                mostrarDialogoOpcionesPapelera = true
                                             }
                                         },
                                         onLongPress = {
@@ -541,6 +563,7 @@ fun PantallaPrincipalNotas(
         }
     }
 
+    // Diálogo de Edición de Nota
     if (mostrarDialogoEdicionNota) {
         AlertDialog(
             onDismissRequest = {
@@ -563,13 +586,29 @@ fun PantallaPrincipalNotas(
                         label = { Text(stringResource(R.string.titulo_label)) },
                         modifier = Modifier
                             .fillMaxWidth()
-                            .onFocusChanged { estadoFoco -> campoTituloDialogoConFoco = estadoFoco.isFocused },
+                            .onFocusChanged { focusState -> campoTituloDialogoConFoco = focusState.isFocused },
                         singleLine = true,
+                        // --- INICIO CAMBIOS DE COLOR TEXTFIELD ---
                         colors = OutlinedTextFieldDefaults.colors(
-                            focusedContainerColor = TextFieldFocusedBackgroundColor,
-                            unfocusedContainerColor = TextFieldDefaultBackgroundColor,
-                            // ...otros colores...
+                            focusedContainerColor = if (esTemaOscuro) DarkTextFieldFocusedBackgroundColor else LightTextFieldFocusedBackgroundColor,
+                            unfocusedContainerColor = if (esTemaOscuro) DarkTextFieldDefaultBackgroundColor else LightTextFieldDefaultBackgroundColor,
+                            focusedBorderColor = if (esTemaOscuro) DarkTextFieldFocusedBorderColor else LightTextFieldFocusedBorderColor,
+                            unfocusedBorderColor = if (esTemaOscuro) DarkTextFieldDefaultBorderColor else LightTextFieldDefaultBorderColor,
+                            focusedLabelColor = if (esTemaOscuro) DarkTextFieldFocusedLabelColor else LightTextFieldFocusedLabelColor,
+                            unfocusedLabelColor = if (esTemaOscuro) DarkTextFieldDefaultLabelColor else LightTextFieldDefaultLabelColor,
+                            focusedTextColor = if (esTemaOscuro) DarkTextFieldFocusedContentColor else LightTextFieldFocusedContentColor,
+                            unfocusedTextColor = if (esTemaOscuro) DarkTextFieldDefaultContentColor else LightTextFieldDefaultContentColor,
+                            cursorColor = if (esTemaOscuro) DarkTextFieldCursorColor else LightTextFieldCursorColor,
+                            selectionColors = TextSelectionColors(
+                                handleColor = if (esTemaOscuro) DarkTextFieldSelectionHandleColor else LightTextFieldSelectionHandleColor,
+                                backgroundColor = if (esTemaOscuro) DarkTextFieldSelectionBackgroundColor else LightTextFieldSelectionBackgroundColor
+                            ),
+                            disabledBorderColor = MaterialTheme.colorScheme.outline.copy(alpha = 0.5f),
+                            disabledTextColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.38f),
+                            disabledLabelColor = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.38f),
+                            errorCursorColor = MaterialTheme.colorScheme.error
                         )
+                        // --- FIN CAMBIOS DE COLOR TEXTFIELD ---
                     )
                     Spacer(modifier = Modifier.height(8.dp))
                     OutlinedTextField(
@@ -579,12 +618,28 @@ fun PantallaPrincipalNotas(
                         modifier = Modifier
                             .fillMaxWidth()
                             .height(150.dp)
-                            .onFocusChanged { estadoFoco -> campoContenidoDialogoConFoco = estadoFoco.isFocused },
+                            .onFocusChanged { focusState -> campoContenidoDialogoConFoco = focusState.isFocused },
+                        // --- INICIO CAMBIOS DE COLOR TEXTFIELD ---
                         colors = OutlinedTextFieldDefaults.colors(
-                            focusedContainerColor = TextFieldFocusedBackgroundColor,
-                            unfocusedContainerColor = TextFieldDefaultBackgroundColor,
-                            // ...otros colores...
+                            focusedContainerColor = if (esTemaOscuro) DarkTextFieldFocusedBackgroundColor else LightTextFieldFocusedBackgroundColor,
+                            unfocusedContainerColor = if (esTemaOscuro) DarkTextFieldDefaultBackgroundColor else LightTextFieldDefaultBackgroundColor,
+                            focusedBorderColor = if (esTemaOscuro) DarkTextFieldFocusedBorderColor else LightTextFieldFocusedBorderColor,
+                            unfocusedBorderColor = if (esTemaOscuro) DarkTextFieldDefaultBorderColor else LightTextFieldDefaultBorderColor,
+                            focusedLabelColor = if (esTemaOscuro) DarkTextFieldFocusedLabelColor else LightTextFieldFocusedLabelColor,
+                            unfocusedLabelColor = if (esTemaOscuro) DarkTextFieldDefaultLabelColor else LightTextFieldDefaultLabelColor,
+                            focusedTextColor = if (esTemaOscuro) DarkTextFieldFocusedContentColor else LightTextFieldFocusedContentColor,
+                            unfocusedTextColor = if (esTemaOscuro) DarkTextFieldDefaultContentColor else LightTextFieldDefaultContentColor,
+                            cursorColor = if (esTemaOscuro) DarkTextFieldCursorColor else LightTextFieldCursorColor,
+                            selectionColors = TextSelectionColors(
+                                handleColor = if (esTemaOscuro) DarkTextFieldSelectionHandleColor else LightTextFieldSelectionHandleColor,
+                                backgroundColor = if (esTemaOscuro) DarkTextFieldSelectionBackgroundColor else LightTextFieldSelectionBackgroundColor
+                            ),
+                            disabledBorderColor = MaterialTheme.colorScheme.outline.copy(alpha = 0.5f),
+                            disabledTextColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.38f),
+                            disabledLabelColor = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.38f),
+                            errorCursorColor = MaterialTheme.colorScheme.error
                         )
+                        // --- FIN CAMBIOS DE COLOR TEXTFIELD ---
                     )
                     Spacer(modifier = Modifier.height(16.dp))
                     Row(
@@ -637,58 +692,75 @@ fun PantallaPrincipalNotas(
         )
     }
 
-    if (mostrarDialogoConfirmarMoverAPapelera && notaParaAccionLarga != null) {
+    // ... (Diálogo de opciones de papelera y otros diálogos sin cambios directos aquí) ...
+    if (mostrarDialogoOpcionesPapelera && notaSeleccionadaEnPapeleraParaAccion != null) {
         AlertDialog(
             onDismissRequest = {
-                mostrarDialogoConfirmarMoverAPapelera = false
-                notaParaAccionLarga = null
+                mostrarDialogoOpcionesPapelera = false
+                notaSeleccionadaEnPapeleraParaAccion = null
             },
-            icon = { Icon(Icons.Filled.DeleteSweep, contentDescription = null) },
-            title = { Text(stringResource(R.string.enviar_a_papelera_titulo)) },
-            text = { Text(stringResource(R.string.confirmar_enviar_a_papelera_mensaje, notaParaAccionLarga?.titulo ?: "")) },
+            icon = { Icon(Icons.Filled.RestoreFromTrash, contentDescription = stringResource(R.string.opciones_nota_papelera_titulo_dialogo)) },
+            title = { Text(stringResource(R.string.opciones_nota_papelera_titulo_dialogo)) },
+            text = {
+                Text(
+                    stringResource(
+                        R.string.opciones_nota_papelera_mensaje,
+                        notaSeleccionadaEnPapeleraParaAccion?.titulo ?: ""
+                    )
+                )
+            },
             confirmButton = {
-                Button(
-                    onClick = {
-                        notaParaAccionLarga?.let { notaAMover ->
-                            val indice = listaGlobalNotas.indexOfFirst { it.id == notaAMover.id }
-                            if (indice != -1) {
-                                listaGlobalNotas[indice] = listaGlobalNotas[indice].copy(estaEnPapelera = true)
-                                Toast.makeText(contexto, contexto.getString(R.string.nota_enviada_a_papelera_toast), Toast.LENGTH_SHORT).show()
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.End
+                ) {
+                    TextButton(
+                        onClick = {
+                            notaSeleccionadaEnPapeleraParaAccion?.let { notaAEliminar ->
+                                listaGlobalNotas.remove(notaAEliminar)
+                                Toast.makeText(
+                                    contexto,
+                                    contexto.getString(R.string.nota_eliminada_permanentemente_toast, notaAEliminar.titulo),
+                                    Toast.LENGTH_SHORT
+                                ).show()
                             }
+                            mostrarDialogoOpcionesPapelera = false
+                            notaSeleccionadaEnPapeleraParaAccion = null
                         }
-                        mostrarDialogoConfirmarMoverAPapelera = false
-                        notaParaAccionLarga = null
+                    ) {
+                        Text(stringResource(R.string.eliminar_permanentemente_boton), color = MaterialTheme.colorScheme.error)
                     }
-                ) { Text(stringResource(R.string.enviar_boton)) }
+                    Spacer(Modifier.width(8.dp))
+                    Button(
+                        onClick = {
+                            notaSeleccionadaEnPapeleraParaAccion?.let { notaARestaurar ->
+                                val indice = listaGlobalNotas.indexOfFirst { it.id == notaARestaurar.id }
+                                if (indice != -1) {
+                                    listaGlobalNotas[indice] = notaARestaurar.copy(estaEnPapelera = false)
+                                    Toast.makeText(
+                                        contexto,
+                                        contexto.getString(R.string.nota_restaurada_toast, notaARestaurar.titulo),
+                                        Toast.LENGTH_SHORT
+                                    ).show()
+                                }
+                            }
+                            mostrarDialogoOpcionesPapelera = false
+                            notaSeleccionadaEnPapeleraParaAccion = null
+                        }
+                    ) {
+                        Text(stringResource(R.string.restaurar_boton))
+                    }
+                }
             },
             dismissButton = {
-                TextButton(onClick = {
-                    mostrarDialogoConfirmarMoverAPapelera = false
-                    notaParaAccionLarga = null
-                }) { Text(stringResource(R.string.cancelar_boton)) }
-            }
-        )
-    }
-
-    if (mostrarDialogoConfirmarVaciarPapelera) {
-        AlertDialog(
-            onDismissRequest = { mostrarDialogoConfirmarVaciarPapelera = false },
-            icon = { Icon(Icons.Filled.DeleteForever, contentDescription = null, tint = MaterialTheme.colorScheme.error) },
-            title = { Text(stringResource(R.string.vaciar_papelera_confirmacion_titulo)) },
-            text = { Text(stringResource(R.string.vaciar_papelera_confirmacion_mensaje)) },
-            confirmButton = {
-                Button(
+                TextButton(
                     onClick = {
-                        val notasAEliminar = listaGlobalNotas.filter { it.estaEnPapelera }
-                        listaGlobalNotas.removeAll(notasAEliminar.toSet())
-                        Toast.makeText(contexto, contexto.getString(R.string.papelera_vaciada_toast), Toast.LENGTH_SHORT).show()
-                        mostrarDialogoConfirmarVaciarPapelera = false
-                    },
-                    colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.error)
-                ) { Text(stringResource(R.string.vaciar_boton)) }
-            },
-            dismissButton = {
-                TextButton(onClick = { mostrarDialogoConfirmarVaciarPapelera = false }) { Text(stringResource(R.string.cancelar_boton)) }
+                        mostrarDialogoOpcionesPapelera = false
+                        notaSeleccionadaEnPapeleraParaAccion = null
+                    }
+                ) {
+                    Text(stringResource(R.string.cancelar_boton))
+                }
             }
         )
     }

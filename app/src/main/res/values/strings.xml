@@ -11,8 +11,7 @@
     <string name="anadir_nueva_nota">Añadir nueva nota</string>
     <string name="mensaje_no_hay_notas">No tienes notas todavía. ¡Añade una tocando el botón \'+\'!</string>
     <string name="mensaje_papelera_vacia">La papelera está vacía.</string>
-    <string name="nota_en_papelera_prefijo">Nota en la papelera</string>
-    <string name="en_papelera_label">(En la papelera)</string>
+    <string name="nota_en_papelera_prefijo">Nota en la papelera</string> <string name="en_papelera_label">(En la papelera)</string>
     <string name="editar_nota_titulo">Editar Nota</string>
     <string name="titulo_label">Título</string>
     <string name="contenido_label">Contenido</string>
@@ -33,8 +32,7 @@
     <string name="seleccionar_idioma_titulo">Seleccionar idioma</string>
     <string name="idioma_cambiado_a">Idioma cambiado a</string>
     <string name="reinicia_para_aplicar">Reinicia la aplicación para que los cambios surtan efecto.</string>
-    <string name="opciones_para_nota_en_papelera">Opciones para nota en papelera</string>
-    <string name="vaciar_papelera_descripcion">Vaciar la papelera</string>
+    <string name="opciones_para_nota_en_papelera">Opciones para nota en papelera</string> <string name="vaciar_papelera_descripcion">Vaciar la papelera</string>
     <string name="crear_nota_titulo">Crear Nota</string>
     <string name="nota_sin_titulo">(Nota sin título)</string>
     <string name="vaciar_papelera_confirmacion_titulo">¿Vaciar la papelera?</string>
@@ -76,7 +74,11 @@
     <string name="autores_texto">Autores: %s</string>
     <string name="version_valor">1.0.0 - Beta</string>
     <string name="autores_nombres">Jose David Cabeza - David San Martin - Juan Mañanes</string>
-    <string name="nota_nueva_titulo_prefijo_comprobacion">Nota</string>
-    <string name="nota_nueva_titulo_dinamico">Nota %d</string>
-    <string name="opciones_papelera_nota_toast">Opciones para papelera: %s</string>
+    <string name="nota_nueva_titulo_prefijo_comprobacion">Nota </string> <string name="nota_nueva_titulo_dinamico">Nota %d</string>
+    <string name="opciones_papelera_nota_toast">Opciones para papelera: %s</string> <string name="opciones_nota_papelera_titulo_dialogo">Opciones de la Nota</string>
+    <string name="opciones_nota_papelera_mensaje">¿Qué deseas hacer con la nota \"%1$s\"?</string>
+    <string name="restaurar_boton">Restaurar</string>
+    <string name="eliminar_permanentemente_boton">Eliminar Def.</string>
+    <string name="nota_restaurada_toast">Nota \"%1$s\" restaurada</string>
+    <string name="nota_eliminada_permanentemente_toast">Nota \"%1$s\" eliminada permanentemente</string>
 </resources>

@@ -11,20 +11,37 @@ val PurpleGrey40 = Color(0xFF625b71)
 val Pink40 = Color(0xFF7D5260)
 
 
-// Nuevos colores para TextField
-// Colores para TextField en foco y por defecto
-val TextFieldFocusedBackgroundColor = Color(0xFFE0E0FF) // Un azul claro/lavanda suave
-val TextFieldDefaultBackgroundColor = Color.Transparent // O un gris muy claro si prefieres: Color(0xFFF5F5F5)
+// --- Colores para TextField ---
 
-val TextFieldFocusedBorderColor = Color(0xFF6200EE) // Un púrpura de tu tema (purple_500)
-val TextFieldDefaultBorderColor = Color.Gray
+// Colores para Tema CLARO
+val LightTextFieldFocusedBackgroundColor = Color(0xFFE8EAF6) // Un lavanda muy suave
+val LightTextFieldDefaultBackgroundColor = Color.Transparent // O Color(0xFFF5F5F5)
+val LightTextFieldFocusedBorderColor = Purple40 // Tu color primario claro
+val LightTextFieldDefaultBorderColor = Color.Gray
+val LightTextFieldFocusedLabelColor = Purple40
+val LightTextFieldDefaultLabelColor = Color.DarkGray
+val LightTextFieldFocusedContentColor = Color.Black
+val LightTextFieldDefaultContentColor = Color.DarkGray
+val LightTextFieldCursorColor = Purple40
+val LightTextFieldSelectionHandleColor = Purple40
+val LightTextFieldSelectionBackgroundColor = Purple40.copy(alpha = 0.3f)
 
-val TextFieldFocusedLabelColor = Color(0xFF6200EE) // Púrpura para la etiqueta cuando está enfocado
-val TextFieldDefaultLabelColor = Color.Gray // Gris para la etiqueta por defecto
+// Colores para Tema OSCURO
+val DarkTextFieldFocusedBackgroundColor = Color(0xFF2C2C3A) // Un gris azulado oscuro
+val DarkTextFieldDefaultBackgroundColor = Color.Transparent // O Color(0xFF22222A)
+val DarkTextFieldFocusedBorderColor = Purple80 // Tu color primario oscuro
+val DarkTextFieldDefaultBorderColor = Color.DarkGray
+val DarkTextFieldFocusedLabelColor = Purple80
+val DarkTextFieldDefaultLabelColor = Color.LightGray
+val DarkTextFieldFocusedContentColor = Color.White
+val DarkTextFieldDefaultContentColor = Color.LightGray
+val DarkTextFieldCursorColor = Purple80
+val DarkTextFieldSelectionHandleColor = Purple80
+val DarkTextFieldSelectionBackgroundColor = Purple80.copy(alpha = 0.4f)
 
-val TextFieldFocusedContentColor = Color.Black // Color del texto cuando está enfocado
-val TextFieldDefaultContentColor = Color.DarkGray // Color del texto por defecto
 
 // Para el BasicTextField de búsqueda (que no tiene borde ni label por defecto)
-val SearchFieldFocusedBackgroundColor = Color(0xFFE8EAF6) // Un color ligeramente diferente para destacar
-val SearchFieldDefaultBackgroundColor = Color.Transparent // O un color de fondo sutil si no es transparente
+// Estos también podrían necesitar variantes claro/oscuro si los usas con fondos diferentes.
+// Por ahora, los mantengo como estaban, pero considera esto.
+val SearchFieldFocusedBackgroundColor = Color(0xFFE8EAF6)
+val SearchFieldDefaultBackgroundColor = Color.Transparent
