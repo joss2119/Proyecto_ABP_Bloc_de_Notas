@@ -692,6 +692,56 @@ fun PantallaPrincipalNotas(
         )
     }
 
+    // --- DIÁLOGO PARA CONFIRMAR ENVIAR A PAPELERA ---
+    if (mostrarDialogoConfirmarMoverAPapelera && notaParaAccionLarga != null) {
+        AlertDialog(
+            onDismissRequest = {
+                mostrarDialogoConfirmarMoverAPapelera = false
+                notaParaAccionLarga = null
+                Log.d("DialogoMoverPapelera", "Diálogo cerrado por onDismissRequest")
+            },
+            icon = { Icon(Icons.Filled.DeleteSweep, contentDescription = null) }, // Puedes usar Icons.Outlined.Delete o similar
+            title = { Text(stringResource(R.string.enviar_a_papelera_titulo)) },
+            text = {
+                Text(
+                    stringResource(
+                        // Asegúrate de tener este string con placeholder en tu strings.xml
+                        // ej. <string name="confirmar_enviar_a_papelera_mensaje">¿Estás seguro de que quieres enviar la nota \"%1$s\" a la papelera?</string>
+                        R.string.confirmar_enviar_a_papelera_mensaje,
+                        notaParaAccionLarga?.titulo ?: ""
+                    )
+                )
+            },
+            confirmButton = {
+                Button(
+                    onClick = {
+                        notaParaAccionLarga?.let { notaAMover ->
+                            val indice = listaGlobalNotas.indexOfFirst { it.id == notaAMover.id }
+                            if (indice != -1) {
+                                listaGlobalNotas[indice] = listaGlobalNotas[indice].copy(estaEnPapelera = true)
+                                Toast.makeText(contexto, contexto.getString(R.string.nota_enviada_a_papelera_toast), Toast.LENGTH_SHORT).show()
+                                Log.d("MoveToTrash", "Nota '${notaAMover.titulo}' (ID: ${notaAMover.id}) movida a papelera.")
+                            } else {
+                                Log.w("MoveToTrash", "No se encontró la nota '${notaAMover.titulo}' (ID: ${notaAMover.id}) para moverla.")
+                            }
+                        }
+                        mostrarDialogoConfirmarMoverAPapelera = false
+                        notaParaAccionLarga = null
+                    }
+                ) { Text(stringResource(R.string.enviar_boton)) }
+            },
+            dismissButton = {
+                TextButton(
+                    onClick = {
+                        mostrarDialogoConfirmarMoverAPapelera = false
+                        notaParaAccionLarga = null
+                        Log.d("DialogoMoverPapelera", "Diálogo cerrado por botón Cancelar")
+                    }
+                ) { Text(stringResource(R.string.cancelar_boton)) }
+            }
+        )
+    }
+
     // ... (Diálogo de opciones de papelera y otros diálogos sin cambios directos aquí) ...
     if (mostrarDialogoOpcionesPapelera && notaSeleccionadaEnPapeleraParaAccion != null) {
         AlertDialog(

@@ -9,6 +9,7 @@
     <string name="anadir_nueva_nota">Add new note</string>
     <string name="mensaje_no_hay_notas">No notes yet. Tap \'+\' to add one!</string>
     <string name="mensaje_papelera_vacia">The trash is empty.</string>
+    <string name="nota_en_papelera_prefijo">Note in the trash</string>
     <string name="en_papelera_label">(In Trash)</string>
     <string name="editar_nota_titulo">Edit Note</string>
     <string name="titulo_label">Title</string>

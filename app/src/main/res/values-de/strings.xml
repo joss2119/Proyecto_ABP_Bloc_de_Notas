@@ -11,6 +11,7 @@
     <string name="anadir_nueva_nota">Neue Notiz hinzufügen</string>
     <string name="mensaje_no_hay_notas">Noch keine Notizen vorhanden. Tippe auf \'+\', um eine hinzuzufügen!</string>
     <string name="mensaje_papelera_vacia">Der Papierkorb ist leer.</string>
+    <string name="nota_en_papelera_prefijo">Notiz im Papierkorb</string>
     <string name="en_papelera_label">(Im Papierkorb)</string>
     <string name="editar_nota_titulo">Notiz bearbeiten</string>
     <string name="titulo_label">Titel</string>
