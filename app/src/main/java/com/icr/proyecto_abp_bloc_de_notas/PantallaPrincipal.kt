@@ -34,6 +34,7 @@ import androidx.compose.material.icons.filled.Abc
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.DeleteForever
 import androidx.compose.material.icons.filled.DeleteSweep
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Info
@@ -45,6 +46,7 @@ import androidx.compose.material.icons.filled.Star
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.BasicAlertDialog
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.DrawerValue
@@ -188,12 +190,18 @@ fun PantallaPrincipalNotas(
     val contadorDesdeViewModel by mainViewModel.contadorIdNotasState.collectAsState()
 
     var listaGlobalNotas by remember(notasDesdeViewModel) {
-        Log.d("PantallaPrincipal", "Reinicializando listaGlobalNotas local desde ViewModel. Tamaño VM: ${notasDesdeViewModel.size}")
+        Log.d(
+            "PantallaPrincipal",
+            "Reinicializando listaGlobalNotas local desde ViewModel. Tamaño VM: ${notasDesdeViewModel.size}"
+        )
         mutableStateOf(notasDesdeViewModel.toMutableStateList())
     }
 
     var contadorIdNotas by remember(contadorDesdeViewModel) {
-        Log.d("PantallaPrincipal", "Reinicializando contadorIdNotas local desde ViewModel. Valor VM: $contadorDesdeViewModel")
+        Log.d(
+            "PantallaPrincipal",
+            "Reinicializando contadorIdNotas local desde ViewModel. Valor VM: $contadorDesdeViewModel"
+        )
         mutableIntStateOf(contadorDesdeViewModel)
     }
 
@@ -201,7 +209,10 @@ fun PantallaPrincipalNotas(
         snapshotFlow { listaGlobalNotas.toList() }
             .debounce(500L)
             .collect { listaParaGuardar ->
-                Log.d("Persistencia", "SnapshotFlow (lista) disparado. Guardando ${listaParaGuardar.size} notas.")
+                Log.d(
+                    "Persistencia",
+                    "SnapshotFlow (lista) disparado. Guardando ${listaParaGuardar.size} notas."
+                )
                 mainViewModel.guardarListaNotas(listaParaGuardar)
             }
     }
@@ -210,7 +221,10 @@ fun PantallaPrincipalNotas(
         snapshotFlow { contadorIdNotas }
             .debounce(500L)
             .collect { contadorParaGuardar ->
-                Log.d("Persistencia", "SnapshotFlow (contador) disparado. Guardando contador $contadorParaGuardar.")
+                Log.d(
+                    "Persistencia",
+                    "SnapshotFlow (contador) disparado. Guardando contador $contadorParaGuardar."
+                )
                 mainViewModel.guardarContadorIdNotas(contadorParaGuardar)
             }
     }
@@ -250,11 +264,14 @@ fun PantallaPrincipalNotas(
             )
             return
         }
+
         PantallaAplicacion.ACERCA_DE -> {
             PantallaAcercaDe(alNavegarAtras = alNavegarAListaNotas)
             return
         }
-        PantallaAplicacion.LISTA_NOTAS -> { /* Continúa */ }
+
+        PantallaAplicacion.LISTA_NOTAS -> { /* Continúa */
+        }
     }
 
     ModalNavigationDrawer(
@@ -269,7 +286,12 @@ fun PantallaPrincipalNotas(
                 )
                 HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))
                 NavigationDrawerItem(
-                    icon = { Icon(Icons.Filled.Home, contentDescription = stringResource(R.string.notas_activas)) },
+                    icon = {
+                        Icon(
+                            Icons.Filled.Home,
+                            contentDescription = stringResource(R.string.notas_activas)
+                        )
+                    },
                     label = { Text(stringResource(R.string.notas_activas)) },
                     selected = itemSeleccionadoCajon == 0,
                     onClick = {
@@ -280,7 +302,12 @@ fun PantallaPrincipalNotas(
                     modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding)
                 )
                 NavigationDrawerItem(
-                    icon = { Icon(Icons.Filled.Delete, contentDescription = stringResource(R.string.papelera)) },
+                    icon = {
+                        Icon(
+                            Icons.Filled.Delete,
+                            contentDescription = stringResource(R.string.papelera)
+                        )
+                    },
                     label = { Text(stringResource(R.string.papelera)) },
                     selected = itemSeleccionadoCajon == 1,
                     onClick = {
@@ -291,7 +318,12 @@ fun PantallaPrincipalNotas(
                     modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding)
                 )
                 NavigationDrawerItem(
-                    icon = { Icon(Icons.Filled.Info, contentDescription = stringResource(R.string.acerca_de)) },
+                    icon = {
+                        Icon(
+                            Icons.Filled.Info,
+                            contentDescription = stringResource(R.string.acerca_de)
+                        )
+                    },
                     label = { Text(stringResource(R.string.acerca_de)) },
                     selected = itemSeleccionadoCajon == 2,
                     onClick = {
@@ -304,7 +336,12 @@ fun PantallaPrincipalNotas(
                 Spacer(Modifier.weight(1f))
                 HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))
                 NavigationDrawerItem(
-                    icon = { Icon(Icons.Filled.Settings, contentDescription = stringResource(R.string.settings_name)) },
+                    icon = {
+                        Icon(
+                            Icons.Filled.Settings,
+                            contentDescription = stringResource(R.string.settings_name)
+                        )
+                    },
                     label = { Text(stringResource(R.string.settings_name)) },
                     selected = itemSeleccionadoCajon == 3,
                     onClick = {
@@ -331,7 +368,9 @@ fun PantallaPrincipalNotas(
                                 modifier = Modifier
                                     .fillMaxWidth()
                                     .focusRequester(focusRequester)
-                                    .onFocusChanged { estadoFoco -> campoBusquedaConFoco = estadoFoco.isFocused }
+                                    .onFocusChanged { estadoFoco ->
+                                        campoBusquedaConFoco = estadoFoco.isFocused
+                                    }
                                     .background(
                                         if (campoBusquedaConFoco) SearchFieldFocusedBackgroundColor
                                         else SearchFieldDefaultBackgroundColor,
@@ -351,10 +390,14 @@ fun PantallaPrincipalNotas(
                                     ) {
                                         if (consultaBusqueda.isEmpty()) {
                                             Text(
-                                                text = if (filtroBusquedaActual == TipoFiltroBusqueda.TITULO) stringResource(R.string.buscar_por_titulo)
+                                                text = if (filtroBusquedaActual == TipoFiltroBusqueda.TITULO) stringResource(
+                                                    R.string.buscar_por_titulo
+                                                )
                                                 else stringResource(R.string.buscar_por_contenido),
                                                 style = MaterialTheme.typography.bodyLarge,
-                                                color = MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.6f)
+                                                color = MaterialTheme.colorScheme.onPrimaryContainer.copy(
+                                                    alpha = 0.6f
+                                                )
                                             )
                                         }
                                         textFieldInterno()
@@ -366,7 +409,9 @@ fun PantallaPrincipalNotas(
                             }
                         } else {
                             Text(
-                                text = if (vistaNotasActual == VistaActualNotas.ACTIVAS) stringResource(R.string.nombre_aplicacion)
+                                text = if (vistaNotasActual == VistaActualNotas.ACTIVAS) stringResource(
+                                    R.string.nombre_aplicacion
+                                )
                                 else stringResource(R.string.papelera)
                             )
                         }
@@ -377,18 +422,25 @@ fun PantallaPrincipalNotas(
                                 busquedaActiva = false
                                 consultaBusqueda = ""
                             }) {
-                                Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = stringResource(R.string.cerrar_busqueda_desc))
+                                Icon(
+                                    Icons.AutoMirrored.Filled.ArrowBack,
+                                    contentDescription = stringResource(R.string.cerrar_busqueda_desc)
+                                )
                             }
                         } else {
                             IconButton(onClick = { alcanceCoroutine.launch { estadoCajonNavegacion.open() } }) {
-                                Icon(Icons.Filled.Menu, contentDescription = stringResource(R.string.menu_descripcion))
+                                Icon(
+                                    Icons.Filled.Menu,
+                                    contentDescription = stringResource(R.string.menu_descripcion)
+                                )
                             }
                         }
                     },
                     actions = {
                         if (busquedaActiva) {
                             IconButton(onClick = {
-                                filtroBusquedaActual = if (filtroBusquedaActual == TipoFiltroBusqueda.TITULO) TipoFiltroBusqueda.CONTENIDO else TipoFiltroBusqueda.TITULO
+                                filtroBusquedaActual =
+                                    if (filtroBusquedaActual == TipoFiltroBusqueda.TITULO) TipoFiltroBusqueda.CONTENIDO else TipoFiltroBusqueda.TITULO
                             }) {
                                 Icon(
                                     imageVector = if (filtroBusquedaActual == TipoFiltroBusqueda.TITULO) Icons.Filled.Abc else Icons.AutoMirrored.Filled.Notes,
@@ -397,15 +449,24 @@ fun PantallaPrincipalNotas(
                             }
                             if (consultaBusqueda.isNotEmpty()) {
                                 IconButton(onClick = { consultaBusqueda = "" }) {
-                                    Icon(Icons.Filled.Clear, contentDescription = stringResource(R.string.limpiar_busqueda_desc))
+                                    Icon(
+                                        Icons.Filled.Clear,
+                                        contentDescription = stringResource(R.string.limpiar_busqueda_desc)
+                                    )
                                 }
                             }
                         } else {
                             IconButton(onClick = { busquedaActiva = true }) {
-                                Icon(Icons.Filled.Search, contentDescription = stringResource(R.string.abrir_busqueda_desc))
+                                Icon(
+                                    Icons.Filled.Search,
+                                    contentDescription = stringResource(R.string.abrir_busqueda_desc)
+                                )
                             }
                             IconButton(onClick = alNavegarAAjustes) {
-                                Icon(Icons.Filled.Settings, contentDescription = stringResource(R.string.settings_name))
+                                Icon(
+                                    Icons.Filled.Settings,
+                                    contentDescription = stringResource(R.string.settings_name)
+                                )
                             }
                         }
                     },
@@ -422,24 +483,83 @@ fun PantallaPrincipalNotas(
                     when (vistaNotasActual) {
                         VistaActualNotas.ACTIVAS -> {
                             FloatingActionButton(onClick = {
-                                val nuevoId = contadorIdNotas + 1
-                                contadorIdNotas = nuevoId
-                                Log.d("FAB_Click", "Nuevo ID generado: $nuevoId, Contador actualizado a: $contadorIdNotas")
+                                // 1. Generar el ID único para la nota (esto no cambia)
+                                val nuevoIdInterno = contadorIdNotas + 1
+                                // Es crucial que contadorIdNotas se actualice aquí para que el LaunchedEffect lo guarde.
+                                // El LaunchedEffect para guardar el contadorIdNotas ya se encarga de persistirlo.
+                                contadorIdNotas = nuevoIdInterno
+                                Log.d(
+                                    "FAB_Click",
+                                    "Nuevo ID INTERNO generado: $nuevoIdInterno, Contador de IDs actualizado a: $contadorIdNotas"
+                                )
+
+                                // 2. Determinar el número para el título por defecto "Nota X"
+                                var numeroParaTitulo = 1
+                                // Usamos R.string.nota_nueva_titulo_prefijo_comprobacion que debe ser "Nota " (con espacio)
+                                // O el prefijo exacto que estés usando antes del número en tus strings.xml.
+                                val prefijoTituloNota =
+                                    contexto.getString(R.string.nota_nueva_titulo_prefijo_comprobacion)
+
+                                // Obtener solo los números de los títulos de las notas activas que siguen el patrón "Prefijo Número"
+                                val numerosDeTitulosExistentes = listaGlobalNotas
+                                    .filter {
+                                        !it.estaEnPapelera && it.titulo.startsWith(
+                                            prefijoTituloNota
+                                        )
+                                    }
+                                    .mapNotNull { nota ->
+                                        // Extraer la parte numérica del título y convertirla a Int
+                                        // Ejemplo: Si el título es "Nota 5", nota.titulo.substringAfter(prefijoTituloNota) sería "5"
+                                        // El .trim() es por si hay espacios extra.
+                                        nota.titulo.substringAfter(prefijoTituloNota).trim()
+                                            .toIntOrNull()
+                                    }
+                                    .sorted() // Ordenar los números existentes
+
+                                // Encontrar el primer "hueco" o el siguiente número disponible
+                                for (numeroExistente in numerosDeTitulosExistentes) {
+                                    if (numeroParaTitulo == numeroExistente) {
+                                        numeroParaTitulo++ // Si el número actual (numeroParaTitulo) ya existe, prueba el siguiente
+                                    } else if (numeroParaTitulo < numeroExistente) {
+                                        // Hemos encontrado un hueco (ej. tenemos Nota 1, Nota 3; numeroParaTitulo es 2)
+                                        // Así que el numeroParaTitulo actual es el que se debe usar.
+                                        break
+                                    }
+                                    // Si numeroParaTitulo > numeroExistente, continuamos buscando, ya que el hueco podría estar más adelante,
+                                    // o simplemente estamos iterando sobre números más pequeños que el que finalmente usaremos.
+                                }
+                                // Si el bucle termina y numeroParaTitulo es mayor que todos los existentes,
+                                // significa que no hay huecos y estamos añadiendo al final de la secuencia numérica.
+
+                                // Usamos R.string.nota_nueva_titulo_dinamico que debe ser "Nota %d" o similar
+                                val tituloPorDefecto = contexto.getString(
+                                    R.string.nota_nueva_titulo_dinamico,
+                                    numeroParaTitulo
+                                )
+                                Log.d(
+                                    "FAB_Click",
+                                    "Título por defecto generado: $tituloPorDefecto (usando número $numeroParaTitulo)"
+                                )
 
                                 val nuevaNota = Nota(
-                                    id = nuevoId,
-                                    titulo = contexto.getString(R.string.nota_nueva_titulo_dinamico, nuevoId),
+                                    id = nuevoIdInterno,       // ID único y persistente
+                                    titulo = tituloPorDefecto, // Título con el número "reajustado"
                                     contenido = ""
+                                    // esImportante y estaEnPapelera ya tienen valores por defecto en la data class
                                 )
                                 notaSeleccionadaParaEditar = nuevaNota
-                                tituloTemporal = nuevaNota.titulo
-                                contenidoTemporal = nuevaNota.contenido
-                                esImportanteTemporal = nuevaNota.esImportante
+                                tituloTemporal =
+                                    nuevaNota.titulo       // Para el diálogo de edición
+                                contenidoTemporal =
+                                    nuevaNota.contenido // Para el diálogo de edición
+                                esImportanteTemporal =
+                                    nuevaNota.esImportante // Para el diálogo de edición
                                 mostrarDialogoEdicionNota = true
                             }) {
                                 Icon(Icons.Filled.Add, stringResource(R.string.anadir_nueva_nota))
                             }
                         }
+
                         VistaActualNotas.PAPELERA -> {
                             if (listaGlobalNotas.any { it.estaEnPapelera }) {
                                 FloatingActionButton(
@@ -447,7 +567,10 @@ fun PantallaPrincipalNotas(
                                     containerColor = MaterialTheme.colorScheme.errorContainer,
                                     contentColor = MaterialTheme.colorScheme.onErrorContainer
                                 ) {
-                                    Icon(Icons.Filled.DeleteSweep, contentDescription = stringResource(R.string.vaciar_papelera_descripcion))
+                                    Icon(
+                                        Icons.Filled.DeleteSweep,
+                                        contentDescription = stringResource(R.string.vaciar_papelera_descripcion)
+                                    )
                                 }
                             }
                         }
@@ -465,8 +588,15 @@ fun PantallaPrincipalNotas(
             val notasFinalesParaMostrar = if (busquedaActiva && consultaBusqueda.isNotBlank()) {
                 notasFiltradasPorVistaActual.filter { nota ->
                     when (filtroBusquedaActual) {
-                        TipoFiltroBusqueda.TITULO -> nota.titulo.contains(consultaBusqueda, ignoreCase = true)
-                        TipoFiltroBusqueda.CONTENIDO -> nota.contenido.contains(consultaBusqueda, ignoreCase = true)
+                        TipoFiltroBusqueda.TITULO -> nota.titulo.contains(
+                            consultaBusqueda,
+                            ignoreCase = true
+                        )
+
+                        TipoFiltroBusqueda.CONTENIDO -> nota.contenido.contains(
+                            consultaBusqueda,
+                            ignoreCase = true
+                        )
                     }
                 }
             } else {
@@ -586,7 +716,9 @@ fun PantallaPrincipalNotas(
                         label = { Text(stringResource(R.string.titulo_label)) },
                         modifier = Modifier
                             .fillMaxWidth()
-                            .onFocusChanged { focusState -> campoTituloDialogoConFoco = focusState.isFocused },
+                            .onFocusChanged { focusState ->
+                                campoTituloDialogoConFoco = focusState.isFocused
+                            },
                         singleLine = true,
                         // --- INICIO CAMBIOS DE COLOR TEXTFIELD ---
                         colors = OutlinedTextFieldDefaults.colors(
@@ -605,7 +737,9 @@ fun PantallaPrincipalNotas(
                             ),
                             disabledBorderColor = MaterialTheme.colorScheme.outline.copy(alpha = 0.5f),
                             disabledTextColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.38f),
-                            disabledLabelColor = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.38f),
+                            disabledLabelColor = MaterialTheme.colorScheme.onSurfaceVariant.copy(
+                                alpha = 0.38f
+                            ),
                             errorCursorColor = MaterialTheme.colorScheme.error
                         )
                         // --- FIN CAMBIOS DE COLOR TEXTFIELD ---
@@ -618,7 +752,9 @@ fun PantallaPrincipalNotas(
                         modifier = Modifier
                             .fillMaxWidth()
                             .height(150.dp)
-                            .onFocusChanged { focusState -> campoContenidoDialogoConFoco = focusState.isFocused },
+                            .onFocusChanged { focusState ->
+                                campoContenidoDialogoConFoco = focusState.isFocused
+                            },
                         // --- INICIO CAMBIOS DE COLOR TEXTFIELD ---
                         colors = OutlinedTextFieldDefaults.colors(
                             focusedContainerColor = if (esTemaOscuro) DarkTextFieldFocusedBackgroundColor else LightTextFieldFocusedBackgroundColor,
@@ -636,7 +772,9 @@ fun PantallaPrincipalNotas(
                             ),
                             disabledBorderColor = MaterialTheme.colorScheme.outline.copy(alpha = 0.5f),
                             disabledTextColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.38f),
-                            disabledLabelColor = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.38f),
+                            disabledLabelColor = MaterialTheme.colorScheme.onSurfaceVariant.copy(
+                                alpha = 0.38f
+                            ),
                             errorCursorColor = MaterialTheme.colorScheme.error
                         )
                         // --- FIN CAMBIOS DE COLOR TEXTFIELD ---
@@ -662,20 +800,26 @@ fun PantallaPrincipalNotas(
                 Button(
                     onClick = {
                         notaSeleccionadaParaEditar?.let { notaActual ->
-                            val tituloFinal = tituloTemporal.ifBlank { contexto.getString(R.string.nota_sin_titulo) }
-                            val notaModificada = notaActual.copy( // usa notaActual (que tiene el ID correcto del FAB o de la nota existente)
-                                titulo = tituloFinal,
-                                contenido = contenidoTemporal,
-                                esImportante = esImportanteTemporal
-                            )
+                            val tituloFinal =
+                                tituloTemporal.ifBlank { contexto.getString(R.string.nota_sin_titulo) }
+                            val notaModificada =
+                                notaActual.copy( // usa notaActual (que tiene el ID correcto del FAB o de la nota existente)
+                                    titulo = tituloFinal,
+                                    contenido = contenidoTemporal,
+                                    esImportante = esImportanteTemporal
+                                )
 
-                            val indice = listaGlobalNotas.indexOfFirst { it.id == notaModificada.id }
+                            val indice =
+                                listaGlobalNotas.indexOfFirst { it.id == notaModificada.id }
                             if (indice != -1) { // La nota (por ID) ya existe, actualízala
                                 listaGlobalNotas[indice] = notaModificada
                                 Log.d("DialogoEdicion", "Nota ACTUALIZADA: ID ${notaModificada.id}")
                             } else { // La nota no existe en la lista, añádela (esto cubre las nuevas notas del FAB)
                                 listaGlobalNotas.add(notaModificada)
-                                Log.d("DialogoEdicion", "Nota NUEVA AÑADIDA: ID ${notaModificada.id}")
+                                Log.d(
+                                    "DialogoEdicion",
+                                    "Nota NUEVA AÑADIDA: ID ${notaModificada.id}"
+                                )
                             }
                         }
                         mostrarDialogoEdicionNota = false
@@ -700,7 +844,12 @@ fun PantallaPrincipalNotas(
                 notaParaAccionLarga = null
                 Log.d("DialogoMoverPapelera", "Diálogo cerrado por onDismissRequest")
             },
-            icon = { Icon(Icons.Filled.DeleteSweep, contentDescription = null) }, // Puedes usar Icons.Outlined.Delete o similar
+            icon = {
+                Icon(
+                    Icons.Filled.DeleteSweep,
+                    contentDescription = null
+                )
+            }, // Puedes usar Icons.Outlined.Delete o similar
             title = { Text(stringResource(R.string.enviar_a_papelera_titulo)) },
             text = {
                 Text(
@@ -718,11 +867,22 @@ fun PantallaPrincipalNotas(
                         notaParaAccionLarga?.let { notaAMover ->
                             val indice = listaGlobalNotas.indexOfFirst { it.id == notaAMover.id }
                             if (indice != -1) {
-                                listaGlobalNotas[indice] = listaGlobalNotas[indice].copy(estaEnPapelera = true)
-                                Toast.makeText(contexto, contexto.getString(R.string.nota_enviada_a_papelera_toast), Toast.LENGTH_SHORT).show()
-                                Log.d("MoveToTrash", "Nota '${notaAMover.titulo}' (ID: ${notaAMover.id}) movida a papelera.")
+                                listaGlobalNotas[indice] =
+                                    listaGlobalNotas[indice].copy(estaEnPapelera = true)
+                                Toast.makeText(
+                                    contexto,
+                                    contexto.getString(R.string.nota_enviada_a_papelera_toast),
+                                    Toast.LENGTH_SHORT
+                                ).show()
+                                Log.d(
+                                    "MoveToTrash",
+                                    "Nota '${notaAMover.titulo}' (ID: ${notaAMover.id}) movida a papelera."
+                                )
                             } else {
-                                Log.w("MoveToTrash", "No se encontró la nota '${notaAMover.titulo}' (ID: ${notaAMover.id}) para moverla.")
+                                Log.w(
+                                    "MoveToTrash",
+                                    "No se encontró la nota '${notaAMover.titulo}' (ID: ${notaAMover.id}) para moverla."
+                                )
                             }
                         }
                         mostrarDialogoConfirmarMoverAPapelera = false
@@ -749,7 +909,12 @@ fun PantallaPrincipalNotas(
                 mostrarDialogoOpcionesPapelera = false
                 notaSeleccionadaEnPapeleraParaAccion = null
             },
-            icon = { Icon(Icons.Filled.RestoreFromTrash, contentDescription = stringResource(R.string.opciones_nota_papelera_titulo_dialogo)) },
+            icon = {
+                Icon(
+                    Icons.Filled.RestoreFromTrash,
+                    contentDescription = stringResource(R.string.opciones_nota_papelera_titulo_dialogo)
+                )
+            },
             title = { Text(stringResource(R.string.opciones_nota_papelera_titulo_dialogo)) },
             text = {
                 Text(
@@ -770,7 +935,10 @@ fun PantallaPrincipalNotas(
                                 listaGlobalNotas.remove(notaAEliminar)
                                 Toast.makeText(
                                     contexto,
-                                    contexto.getString(R.string.nota_eliminada_permanentemente_toast, notaAEliminar.titulo),
+                                    contexto.getString(
+                                        R.string.nota_eliminada_permanentemente_toast,
+                                        notaAEliminar.titulo
+                                    ),
                                     Toast.LENGTH_SHORT
                                 ).show()
                             }
@@ -778,18 +946,26 @@ fun PantallaPrincipalNotas(
                             notaSeleccionadaEnPapeleraParaAccion = null
                         }
                     ) {
-                        Text(stringResource(R.string.eliminar_permanentemente_boton), color = MaterialTheme.colorScheme.error)
+                        Text(
+                            stringResource(R.string.eliminar_permanentemente_boton),
+                            color = MaterialTheme.colorScheme.error
+                        )
                     }
                     Spacer(Modifier.width(8.dp))
                     Button(
                         onClick = {
                             notaSeleccionadaEnPapeleraParaAccion?.let { notaARestaurar ->
-                                val indice = listaGlobalNotas.indexOfFirst { it.id == notaARestaurar.id }
+                                val indice =
+                                    listaGlobalNotas.indexOfFirst { it.id == notaARestaurar.id }
                                 if (indice != -1) {
-                                    listaGlobalNotas[indice] = notaARestaurar.copy(estaEnPapelera = false)
+                                    listaGlobalNotas[indice] =
+                                        notaARestaurar.copy(estaEnPapelera = false)
                                     Toast.makeText(
                                         contexto,
-                                        contexto.getString(R.string.nota_restaurada_toast, notaARestaurar.titulo),
+                                        contexto.getString(
+                                            R.string.nota_restaurada_toast,
+                                            notaARestaurar.titulo
+                                        ),
                                         Toast.LENGTH_SHORT
                                     ).show()
                                 }
@@ -807,6 +983,60 @@ fun PantallaPrincipalNotas(
                     onClick = {
                         mostrarDialogoOpcionesPapelera = false
                         notaSeleccionadaEnPapeleraParaAccion = null
+                    }
+                ) {
+                    Text(stringResource(R.string.cancelar_boton))
+                }
+            }
+        )
+    }
+
+// --- DIÁLOGO PARA CONFIRMAR VACIAR TODA LA PAPELERA ---
+    if (mostrarDialogoConfirmarVaciarPapelera) {
+        AlertDialog(
+            onDismissRequest = {
+                mostrarDialogoConfirmarVaciarPapelera = false
+                Log.d("DialogoVaciarPapelera", "Diálogo cerrado por onDismissRequest")
+            },
+            icon = {
+                Icon(
+                    Icons.Filled.DeleteForever, // Icono más destructivo
+                    contentDescription = null, // Decorativo
+                    tint = MaterialTheme.colorScheme.error
+                )
+            },
+            title = { Text(stringResource(R.string.vaciar_papelera_confirmacion_titulo)) },
+            text = { Text(stringResource(R.string.vaciar_papelera_confirmacion_mensaje)) },
+            confirmButton = {
+                Button(
+                    onClick = {
+                        val notasAEliminar = listaGlobalNotas.filter { it.estaEnPapelera }
+                        if (notasAEliminar.isNotEmpty()) { // Solo procede si hay algo que eliminar
+                            listaGlobalNotas.removeAll(notasAEliminar.toSet()) // Actualiza la lista mutable
+                            Toast.makeText(
+                                contexto,
+                                contexto.getString(R.string.papelera_vaciada_toast),
+                                Toast.LENGTH_SHORT
+                            ).show()
+                            Log.d(
+                                "VaciarPapelera",
+                                "${notasAEliminar.size} notas eliminadas de la papelera."
+                            )
+                        } else {
+                            Log.d("VaciarPapelera", "No había notas en la papelera para eliminar.")
+                        }
+                        mostrarDialogoConfirmarVaciarPapelera = false
+                    },
+                    colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.error)
+                ) {
+                    Text(stringResource(R.string.vaciar_boton))
+                }
+            },
+            dismissButton = {
+                TextButton(
+                    onClick = {
+                        mostrarDialogoConfirmarVaciarPapelera = false
+                        Log.d("DialogoVaciarPapelera", "Diálogo cerrado por botón Cancelar")
                     }
                 ) {
                     Text(stringResource(R.string.cancelar_boton))
@@ -873,7 +1103,12 @@ fun PantallaAjustes(
             ) {
                 Text(stringResource(R.string.boton_ayuda_ajustes))
             }
-            createHorizontalChain(etiquetaTema, selectorTema, botonAyudaAjustes, chainStyle = ChainStyle.Spread)
+            createHorizontalChain(
+                etiquetaTema,
+                selectorTema,
+                botonAyudaAjustes,
+                chainStyle = ChainStyle.Spread
+            )
 
             if (mostrarDialogoAyudaAjustes) {
                 BasicAlertDialog(onDismissRequest = { mostrarDialogoAyudaAjustes = false }) {

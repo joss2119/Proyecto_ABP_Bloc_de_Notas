@@ -53,6 +53,7 @@ dependencies {
     implementation(libs.androidx.ui.tooling.preview)
     implementation(libs.androidx.material3)
     // Nuestros imports
+    implementation(libs.material)
     implementation(libs.androidx.constraintlayout)
     implementation(libs.androidx.constraintlayout.compose)
     implementation(libs.androidx.material.icons.extended.android)
@@ -65,6 +66,8 @@ dependencies {
     // DataStore para las preferencias de los usuarios
     implementation(libs.androidx.datastore.preferences)
     implementation(libs.androidx.lifecycle.runtime.compose)
+    // Splashscreen en modo oscuro
+    implementation(libs.androidx.core.splashscreen)
 
 
     testImplementation(libs.junit)
